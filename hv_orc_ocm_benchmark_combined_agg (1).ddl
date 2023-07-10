@@ -1,0 +1,1621 @@
+SET tez.queue.name=Hive;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+SET hive.support.quoted.identifiers=none;
+
+USE community_common;
+
+DROP TABLE IF EXISTS hv_orc_ocm_benchmark_combined_agg_temp;
+DROP TABLE IF EXISTS hv_orc_ocm_benchmark_combined_agg_hash_temp;
+
+CREATE TABLE IF NOT EXISTS hv_orc_ocm_benchmark_combined_agg_temp
+STORED AS ORC TBLPROPERTIES("orc.compress" = "SNAPPY")
+AS
+SELECT
+    COALESCE(a.carrierorgid, b.carrierorgid) AS carrierorgid
+,   COALESCE(a.carriername, b.carriername) AS carriername
+,   COALESCE(a.carriercluster, b.carriercluster) AS carriercluster
+,   a.ownerorgid
+,   a.ownerorgname
+,   COALESCE(a.lanecityname, b.lanecityname) AS lanecityname
+,   COALESCE(a.lanecitysubdivision, b.lanecitysubdivision) AS lanecitysubdivision
+,   COALESCE(a.lanecitycluster1, b.lanecitycluster1) AS lanecitycluster1
+,   COALESCE(a.lanecitycluster2, b.lanecitycluster2) AS lanecitycluster2
+,   COALESCE(a.lanecountryname, b.lanecountryname) AS lanecountryname
+,   COALESCE(a.laneregion1, b.laneregion1) AS laneregion1
+,   COALESCE(a.laneregion2, b.laneregion2) AS laneregion2
+,   COALESCE(a.polcityid, b.polcityid) AS polcityid
+,   COALESCE(a.polcityname, b.polcityname) AS polcityname
+,   COALESCE(a.polcityunlocode, b.polcityunlocode) AS polcityunlocode
+,   COALESCE(a.polcitylongitude, b.polcitylongitude) AS polcitylongitude
+,   COALESCE(a.polcitylatitude, b.polcitylatitude) AS polcitylatitude
+,   COALESCE(a.polcitysubdivision, b.polcitysubdivision) AS polcitysubdivision
+,   COALESCE(a.polcitycluster1, b.polcitycluster1) AS polcitycluster1
+,   COALESCE(a.polcitycluster2, b.polcitycluster2) AS polcitycluster2
+,   COALESCE(a.polcountryid, b.polcountryid) AS polcountryid
+,   COALESCE(a.polcountryname, b.polcountryname) AS polcountryname
+,   COALESCE(a.polregion1, b.polregion1) AS polregion1
+,   COALESCE(a.polregion2, b.polregion2) AS polregion2
+,   COALESCE(a.podcityid, b.podcityid) AS podcityid
+,   COALESCE(a.podcityname, b.podcityname) AS podcityname
+,   COALESCE(a.podcityunlocode, b.podcityunlocode) AS podcityunlocode
+,   COALESCE(a.podcitylongitude, b.podcitylongitude) AS podcitylongitude
+,   COALESCE(a.podcitylatitude, b.podcitylatitude) AS podcitylatitude
+,   COALESCE(a.podcitysubdivision, b.podcitysubdivision) AS podcitysubdivision
+,   COALESCE(a.podcitycluster1, b.podcitycluster1) AS podcitycluster1
+,   COALESCE(a.podcitycluster2, b.podcitycluster2) AS podcitycluster2
+,   COALESCE(a.podcountryid, b.podcountryid) AS podcountryid
+,   COALESCE(a.podcountryname, b.podcountryname) AS podcountryname
+,   COALESCE(a.podregion1, b.podregion1) AS podregion1
+,   COALESCE(a.podregion2, b.podregion2) AS podregion2
+,   COALESCE(a.transshipcityid, b.transshipcityid) AS transshipcityid
+,   COALESCE(a.transshipcityname, b.transshipcityname) AS transshipcityname
+,   COALESCE(a.transshipcityunlocode, b.transshipcityunlocode) AS transshipcityunlocode
+,   COALESCE(a.transshipcitylongitude, b.transshipcitylongitude) AS transshipcitylongitude
+,   COALESCE(a.transshipcitylatitude, b.transshipcitylatitude) AS transshipcitylatitude
+,   COALESCE(a.transshipcitysubdivision, b.transshipcitysubdivision) AS transshipcitysubdivision
+,   COALESCE(a.transshipcitycluster1, b.transshipcitycluster1) AS transshipcitycluster1
+,   COALESCE(a.transshipcitycluster2, b.transshipcitycluster2) AS transshipcitycluster2
+,   COALESCE(a.transshipcountryid, b.transshipcountryid) AS transshipcountryid
+,   COALESCE(a.transshipcountryname, b.transshipcountryname) AS transshipcountryname
+,   COALESCE(a.transshipregion1, b.transshipregion1) AS transshipregion1
+,   COALESCE(a.transshipregion2, b.transshipregion2) AS transshipregion2
+,   (CASE WHEN COALESCE(a.transshipcityflag, 0) = COALESCE(b.transshipcityflag, 0) AND COALESCE(a.transshipcityflag, 0) = 1 THEN 1 ELSE 0 END) AS transshipcityflag
+,   COALESCE(a.containertypecluster, b.containertypecluster) AS containertypecluster
+,   COALESCE(a.movetypecluster, b.movetypecluster) AS movetypecluster
+,   COALESCE(a.originmovetypecluster, b.originmovetypecluster) AS originmovetypecluster
+,   (CASE WHEN COALESCE(a.originmovetypeclusterflag, 0) = COALESCE(b.originmovetypeclusterflag, 0) AND COALESCE(a.originmovetypeclusterflag, 0) = 1 THEN 1 ELSE 0 END) AS originmovetypeclusterflag
+,   COALESCE(a.destinationmovetypecluster, b.destinationmovetypecluster) AS destinationmovetypecluster
+,   (CASE WHEN COALESCE(a.destinationmovetypeclusterflag, 0) = COALESCE(b.destinationmovetypeclusterflag, 0) AND COALESCE(a.destinationmovetypeclusterflag, 0) = 1 THEN 1 ELSE 0 END) AS destinationmovetypeclusterflag
+,   COALESCE(a.datedimid, b.datedimid) AS datedimid
+,   COALESCE(a.weekenddate, b.weekenddate) AS weekenddate
+,   COALESCE(a.year, b.year) AS year
+,   COALESCE(a.quarter, b.quarter) AS quarter
+,   COALESCE(a.yearquarter, b.yearquarter) AS yearquarter
+,   COALESCE(a.month, b.month) AS month
+,   COALESCE(a.yearmonth, b.yearmonth) AS yearmonth
+,   COALESCE(a.week, b.week) AS week
+,   COALESCE(a.yearweek, b.yearweek) AS yearweek
+,   a.emptyoutgatecontainercount AS owneremptyoutgatecontainercount
+,   a.outforstuffingcontainercount AS owneroutforstuffingcontainercount
+,   a.positiveoutforstuffingcontainercount AS ownerpositiveoutforstuffingcontainercount
+,   a.negativeoutforstuffingcontainercount AS ownernegativeoutforstuffingcontainercount
+,   a.outforstuffing0lessthanorequalto1dayscontainercount AS owneroutforstuffing0lessthanorequalto1dayscontainercount
+,   a.outforstuffing1lessthanorequalto2dayscontainercount AS owneroutforstuffing1lessthanorequalto2dayscontainercount
+,   a.outforstuffing2lessthanorequalto3dayscontainercount AS owneroutforstuffing2lessthanorequalto3dayscontainercount
+,   a.outforstuffing3lessthanorequalto4dayscontainercount AS owneroutforstuffing3lessthanorequalto4dayscontainercount
+,   a.outforstuffing4lessthanorequalto5dayscontainercount AS owneroutforstuffing4lessthanorequalto5dayscontainercount
+,   a.outforstuffing5lessthanorequalto6dayscontainercount AS owneroutforstuffing5lessthanorequalto6dayscontainercount
+,   a.outforstuffing6lessthanorequalto7dayscontainercount AS owneroutforstuffing6lessthanorequalto7dayscontainercount
+,   a.outforstuffing7lessthanorequalto8dayscontainercount AS owneroutforstuffing7lessthanorequalto8dayscontainercount
+,   a.outforstuffinggreaterthan8dayscontainercount AS owneroutforstuffinggreaterthan8dayscontainercount
+,   a.outforstuffingdayssum AS owneroutforstuffingdayssum
+,   a.positiveoutforstuffingdayssum AS ownerpositiveoutforstuffingdayssum
+,   a.negativeoutforstuffingdayssum AS ownernegativeoutforstuffingdayssum
+,   a.minpositiveoutforstuffingdays AS ownerminpositiveoutforstuffingdays
+,   a.maxpositiveoutforstuffingdays AS ownermaxpositiveoutforstuffingdays
+,   a.yardincontainercount AS owneryardincontainercount
+,   a.dwelltimeawayfrompolcontainercount AS ownerdwelltimeawayfrompolcontainercount
+,   a.positivedwelltimeawayfrompolcontainercount AS ownerpositivedwelltimeawayfrompolcontainercount
+,   a.negativedwelltimeawayfrompolcontainercount AS ownernegativedwelltimeawayfrompolcontainercount
+,   a.dwelltimeawayfrompol0lessthanorequalto1dayscontainercount AS ownerdwelltimeawayfrompol0lessthanorequalto1dayscontainercount
+,   a.dwelltimeawayfrompol1lessthanorequalto2dayscontainercount AS ownerdwelltimeawayfrompol1lessthanorequalto2dayscontainercount
+,   a.dwelltimeawayfrompol2lessthanorequalto3dayscontainercount AS ownerdwelltimeawayfrompol2lessthanorequalto3dayscontainercount
+,   a.dwelltimeawayfrompol3lessthanorequalto4dayscontainercount AS ownerdwelltimeawayfrompol3lessthanorequalto4dayscontainercount
+,   a.dwelltimeawayfrompol4lessthanorequalto5dayscontainercount AS ownerdwelltimeawayfrompol4lessthanorequalto5dayscontainercount
+,   a.dwelltimeawayfrompol5lessthanorequalto6dayscontainercount AS ownerdwelltimeawayfrompol5lessthanorequalto6dayscontainercount
+,   a.dwelltimeawayfrompol6lessthanorequalto7dayscontainercount AS ownerdwelltimeawayfrompol6lessthanorequalto7dayscontainercount
+,   a.dwelltimeawayfrompol7lessthanorequalto8dayscontainercount AS ownerdwelltimeawayfrompol7lessthanorequalto8dayscontainercount
+,   a.dwelltimeawayfrompolgreaterthan8dayscontainercount AS ownerdwelltimeawayfrompolgreaterthan8dayscontainercount
+,   a.dwelltimeawayfrompoldayssum AS ownerdwelltimeawayfrompoldayssum
+,   a.positivedwelltimeawayfrompoldayssum AS ownerpositivedwelltimeawayfrompoldayssum
+,   a.negativedwelltimeawayfrompoldayssum AS ownernegativedwelltimeawayfrompoldayssum
+,   a.minpositivedwelltimeawayfrompoldays AS ownerminpositivedwelltimeawayfrompoldays
+,   a.maxpositivedwelltimeawayfrompoldays AS ownermaxpositivedwelltimeawayfrompoldays
+,   a.origininlandtransitcontainercount AS ownerorigininlandtransitcontainercount
+,   a.positiveorigininlandtransitcontainercount AS ownerpositiveorigininlandtransitcontainercount
+,   a.negativeorigininlandtransitcontainercount AS ownernegativeorigininlandtransitcontainercount
+,   a.origininlandtransit0lessthanorequalto1dayscontainercount AS ownerorigininlandtransit0lessthanorequalto1dayscontainercount
+,   a.origininlandtransit1lessthanorequalto2dayscontainercount AS ownerorigininlandtransit1lessthanorequalto2dayscontainercount
+,   a.origininlandtransit2lessthanorequalto3dayscontainercount AS ownerorigininlandtransit2lessthanorequalto3dayscontainercount
+,   a.origininlandtransit3lessthanorequalto4dayscontainercount AS ownerorigininlandtransit3lessthanorequalto4dayscontainercount
+,   a.origininlandtransit4lessthanorequalto5dayscontainercount AS ownerorigininlandtransit4lessthanorequalto5dayscontainercount
+,   a.origininlandtransitgreaterthan5dayscontainercount AS ownerorigininlandtransitgreaterthan5dayscontainercount
+,   a.origininlandtransitdayssum AS ownerorigininlandtransitdayssum
+,   a.positiveorigininlandtransitdayssum AS ownerpositiveorigininlandtransitdayssum
+,   a.negativeorigininlandtransitdayssum AS ownernegativeorigininlandtransitdayssum
+,   a.minpositiveorigininlandtransitdays AS ownerminpositiveorigininlandtransitdays
+,   a.maxpositiveorigininlandtransitdays AS ownermaxpositiveorigininlandtransitdays
+,   a.onboardcontainercount AS owneronboardcontainercount
+,   a.dwelltimeatpolcontainercount AS ownerdwelltimeatpolcontainercount
+,   a.positivedwelltimeatpolcontainercount AS ownerpositivedwelltimeatpolcontainercount
+,   a.negativedwelltimeatpolcontainercount AS ownernegativedwelltimeatpolcontainercount
+,   a.dwelltimeatpoldayssum AS ownerdwelltimeatpoldayssum
+,   a.positivedwelltimeatpoldayssum AS ownerpositivedwelltimeatpoldayssum
+,   a.negativedwelltimeatpoldayssum AS ownernegativedwelltimeatpoldayssum
+,   a.minpositivedwelltimeatpoldays AS ownerminpositivedwelltimeatpoldays
+,   a.maxpositivedwelltimeatpoldays AS ownermaxpositivedwelltimeatpoldays
+,   a.bookedetdpolcontainercount AS ownerbookedetdpolcontainercount
+,   a.btdpolcontainercount AS ownerbtdpolcontainercount
+,   a.pollatenesscontainercount AS ownerpollatenesscontainercount
+,   a.otdperformancecontainercount AS ownerotdperformancecontainercount
+,   a.positivepollatenesscontainercount AS ownerpositivepollatenesscontainercount
+,   a.negativepollatenesscontainercount AS ownernegativepollatenesscontainercount
+,   a.otdperformancegreaterthan8daysearly AS ownerotdperformancegreaterthan8daysearly
+,   a.otdperformance7lessthanorequalto8daysearly AS ownerotdperformance7lessthanorequalto8daysearly
+,   a.otdperformance6lessthanorequalto7daysearly AS ownerotdperformance6lessthanorequalto7daysearly
+,   a.otdperformance5lessthanorequalto6daysearly AS ownerotdperformance5lessthanorequalto6daysearly
+,   a.otdperformance4lessthanorequalto5daysearly AS ownerotdperformance4lessthanorequalto5daysearly
+,   a.otdperformance3lessthanorequalto4daysearly AS ownerotdperformance3lessthanorequalto4daysearly
+,   a.otdperformance2lessthanorequalto3daysearly AS ownerotdperformance2lessthanorequalto3daysearly
+,   a.otdperformance1lessthanorequalto2daysearly AS ownerotdperformance1lessthanorequalto2daysearly
+,   a.otdperformance0lessthanorequalto1daysearly AS ownerotdperformance0lessthanorequalto1daysearly
+,   a.otdperformance0lessthanorequalto1dayslate AS ownerotdperformance0lessthanorequalto1dayslate
+,   a.otdperformance1lessthanorequalto2dayslate AS ownerotdperformance1lessthanorequalto2dayslate
+,   a.otdperformance2lessthanorequalto3dayslate AS ownerotdperformance2lessthanorequalto3dayslate
+,   a.otdperformance3lessthanorequalto4dayslate AS ownerotdperformance3lessthanorequalto4dayslate
+,   a.otdperformance4lessthanorequalto5dayslate AS ownerotdperformance4lessthanorequalto5dayslate
+,   a.otdperformancegreaterthan5dayslate AS ownerotdperformancegreaterthan5dayslate
+,   a.otdperformance5lessthanorequalto6dayslate AS ownerotdperformance5lessthanorequalto6dayslate
+,   a.otdperformance6lessthanorequalto7dayslate AS ownerotdperformance6lessthanorequalto7dayslate
+,   a.otdperformance7lessthanorequalto8dayslate AS ownerotdperformance7lessthanorequalto8dayslate
+,   a.otdperformancegreaterthan8dayslate AS ownerotdperformancegreaterthan8dayslate
+,   a.pollatenessdayssum AS ownerpollatenessdayssum
+,   a.positivepollatenessdayssum AS ownerpositivepollatenessdayssum
+,   a.negativepollatenessdayssum AS ownernegativepollatenessdayssum
+,   a.arrivedattransshipmentcompletenesscontainercount AS ownerarrivedattransshipmentcompletenesscontainercount
+,   a.bookedetdpolcompletenesscontainercount AS ownerbookedetdpolcompletenesscontainercount
+,   a.departedfrompolcompletenesscontainercount AS ownerdepartedfrompolcompletenesscontainercount
+,   a.departedfromtransshipmentcompletenesscontainercount AS ownerdepartedfromtransshipmentcompletenesscontainercount
+,   a.emptyoutgatecompletenesscontainercount AS owneremptyoutgatecompletenesscontainercount
+,   a.emptyoutfrominlandcompletenesscontainercount AS owneremptyoutfrominlandcompletenesscontainercount
+,   a.emptyoutfromportcompletenesscontainercount AS owneremptyoutfromportcompletenesscontainercount
+,   a.etdpolcompletenesscontainercount AS owneretdpolcompletenesscontainercount
+,   a.fulloutgatefrompolcompletenesscontainercount AS ownerfulloutgatefrompolcompletenesscontainercount
+,   a.onboardcompletenesscontainercount AS owneronboardcompletenesscontainercount
+,   a.yardincompletenesscontainercount AS owneryardincompletenesscontainercount
+,   a.speedkmshr AS ownerspeedkmshr
+,   a.teusum AS ownerteusum
+,   a.teuatpolsum AS ownerteuatpolsum
+,   a.containertransittimesum AS ownercontainertransittimesum
+,   a.containertransittimecount AS ownercontainertransittimecount
+,   a.vesseltransittimesum AS ownervesseltransittimesum
+,   a.vesseltransittimecount AS ownervesseltransittimecount
+,   a.otdperformancesum AS ownerotdperformancesum
+,   a.otdperformancecount AS ownerotdperformancecount
+,   a.otaperformancesum AS ownerotaperformancesum
+,   a.otaperformancecount AS ownerotaperformancecount
+,   a.pollatenesssum AS ownerpollatenesssum
+,   a.pollatenesscount AS ownerpollatenesscount
+,   a.podlatenesssum AS ownerpodlatenesssum
+,   a.podlatenesscount AS ownerpodlatenesscount
+,   a.speeddistancekms AS ownerspeeddistancekms
+,   a.speedtimehr AS ownerspeedtimehr
+,   a.totaltimeatpolsum AS ownertotaltimeatpolsum
+,   a.totaltimeatpolcount AS ownertotaltimeatpolcount
+,   a.totaltimeatpodsum AS ownertotaltimeatpodsum
+,   a.totaltimeatpodcount AS ownertotaltimeatpodcount
+,   a.teuranksum AS ownerteuranksum
+,   a.teurankcount AS ownerteurankcount
+,   a.teuatpolranksum AS ownerteuatpolranksum
+,   a.teuatpolrankcount AS ownerteuatpolrankcount
+,   a.teuatpodranksum AS ownerteuatpodranksum
+,   a.teuatpodrankcount AS ownerteuatpodrankcount
+,   a.departedfrompolcontainercount AS ownerdepartedfrompolcontainercount
+,   a.totaltimeatpolcontainercount AS ownertotaltimeatpolcontainercount
+,   a.positivetotaltimeatpolcontainercount AS ownerpositivetotaltimeatpolcontainercount
+,   a.negativetotaltimeatpolcontainercount AS ownernegativetotaltimeatpolcontainercount
+,   a.totaltimeatpol0lessthanorequalto1dayscontainercount AS ownertotaltimeatpol0lessthanorequalto1dayscontainercount
+,   a.totaltimeatpol1lessthanorequalto2dayscontainercount AS ownertotaltimeatpol1lessthanorequalto2dayscontainercount
+,   a.totaltimeatpol2lessthanorequalto3dayscontainercount AS ownertotaltimeatpol2lessthanorequalto3dayscontainercount
+,   a.totaltimeatpol3lessthanorequalto4dayscontainercount AS ownertotaltimeatpol3lessthanorequalto4dayscontainercount
+,   a.totaltimeatpol4lessthanorequalto5dayscontainercount AS ownertotaltimeatpol4lessthanorequalto5dayscontainercount
+,   a.totaltimeatpol5lessthanorequalto6dayscontainercount AS ownertotaltimeatpol5lessthanorequalto6dayscontainercount
+,   a.totaltimeatpol6lessthanorequalto7dayscontainercount AS ownertotaltimeatpol6lessthanorequalto7dayscontainercount
+,   a.totaltimeatpol7lessthanorequalto8dayscontainercount AS ownertotaltimeatpol7lessthanorequalto8dayscontainercount
+,   a.totaltimeatpolgreaterthan8dayscontainercount AS ownertotaltimeatpolgreaterthan8dayscontainercount
+,   a.totaltimeatpoldayssum AS ownertotaltimeatpoldayssum
+,   a.positivetotaltimeatpoldayssum AS ownerpositivetotaltimeatpoldayssum
+,   a.negativetotaltimeatpoldayssum AS ownernegativetotaltimeatpoldayssum
+,   a.minpositivetotaltimeatpoldayssum AS ownerminpositivetotaltimeatpoldayssum
+,   a.maxpositivetotaltimeatpoldayssum AS ownermaxpositivetotaltimeatpoldayssum
+,   a.arrivedattransshipmentcontainercount AS ownerarrivedattransshipmentcontainercount
+,   a.departedfromtransshipmentcontainercount AS ownerdepartedfromtransshipmentcontainercount
+,   a.dwelltimeattransshipmentportcontainercount AS ownerdwelltimeattransshipmentportcontainercount
+,   a.positivedwelltimeattransshipmentportcontainercount AS ownerpositivedwelltimeattransshipmentportcontainercount
+,   a.negativedwelltimeattransshipmentportcontainercount AS ownernegativedwelltimeattransshipmentportcontainercount
+,   a.dwelltimeattransshipmentport0lessthanorequalto1dayscontainercount AS ownerdwelltimeattransshipmentport0lessthanorequalto1dayscontainercount
+,   a.dwelltimeattransshipmentport1lessthanorequalto2dayscontainercount AS ownerdwelltimeattransshipmentport1lessthanorequalto2dayscontainercount
+,   a.dwelltimeattransshipmentport2lessthanorequalto3dayscontainercount AS ownerdwelltimeattransshipmentport2lessthanorequalto3dayscontainercount
+,   a.dwelltimeattransshipmentport3lessthanorequalto4dayscontainercount AS ownerdwelltimeattransshipmentport3lessthanorequalto4dayscontainercount
+,   a.dwelltimeattransshipmentport4lessthanorequalto5dayscontainercount AS ownerdwelltimeattransshipmentport4lessthanorequalto5dayscontainercount
+,   a.dwelltimeattransshipmentportgreaterthan5dayscontainercount AS ownerdwelltimeattransshipmentportgreaterthan5dayscontainercount
+,   a.dwelltimeattransshipmentportdayssum AS ownerdwelltimeattransshipmentportdayssum
+,   a.positivedwelltimeattransshipmentportdayssum AS ownerpositivedwelltimeattransshipmentportdayssum
+,   a.negativedwelltimeattransshipmentportdayssum AS ownernegativedwelltimeattransshipmentportdayssum
+,   a.minpositivedwelltimeattransshipmentportdayssum AS ownerminpositivedwelltimeattransshipmentportdayssum
+,   a.maxpositivedwelltimeattransshipmentportdayssum AS ownermaxpositivedwelltimeattransshipmentportdayssum
+,   a.btapodcontainercount AS ownerbtapodcontainercount
+,   a.podlatenesscontainercount AS ownerpodlatenesscontainercount
+,   a.otaperformancecontainercount AS ownerotaperformancecontainercount
+,   a.positivepodlatenesscontainercount AS ownerpositivepodlatenesscontainercount
+,   a.negativepodlatenesscontainercount AS ownernegativepodlatenesscontainercount
+,   a.otaperformancegreaterthan8daysearly AS ownerotaperformancegreaterthan8daysearly
+,   a.otaperformance7lessthanorequalto8daysearly AS ownerotaperformance7lessthanorequalto8daysearly
+,   a.otaperformance6lessthanorequalto7daysearly AS ownerotaperformance6lessthanorequalto7daysearly
+,   a.otaperformance5lessthanorequalto6daysearly AS ownerotaperformance5lessthanorequalto6daysearly
+,   a.otaperformance4lessthanorequalto5daysearly AS ownerotaperformance4lessthanorequalto5daysearly
+,   a.otaperformance3lessthanorequalto4daysearly AS ownerotaperformance3lessthanorequalto4daysearly
+,   a.otaperformance2lessthanorequalto3daysearly AS ownerotaperformance2lessthanorequalto3daysearly
+,   a.otaperformance1lessthanorequalto2daysearly AS ownerotaperformance1lessthanorequalto2daysearly
+,   a.otaperformance0lessthanorequalto1daysearly AS ownerotaperformance0lessthanorequalto1daysearly
+,   a.otaperformance0lessthanorequalto1dayslate AS ownerotaperformance0lessthanorequalto1dayslate
+,   a.otaperformance1lessthanorequalto2dayslate AS ownerotaperformance1lessthanorequalto2dayslate
+,   a.otaperformance2lessthanorequalto3dayslate AS ownerotaperformance2lessthanorequalto3dayslate
+,   a.otaperformance3lessthanorequalto4dayslate AS ownerotaperformance3lessthanorequalto4dayslate
+,   a.otaperformance4lessthanorequalto5dayslate AS ownerotaperformance4lessthanorequalto5dayslate
+,   a.otaperformancegreaterthan5dayslate AS ownerotaperformancegreaterthan5dayslate
+,   a.otaperformance5lessthanorequalto6dayslate AS ownerotaperformance5lessthanorequalto6dayslate
+,   a.otaperformance6lessthanorequalto7dayslate AS ownerotaperformance6lessthanorequalto7dayslate
+,   a.otaperformance7lessthanorequalto8dayslate AS ownerotaperformance7lessthanorequalto8dayslate
+,   a.otaperformancegreaterthan8dayslate AS ownerotaperformancegreaterthan8dayslate
+,   a.podlatenessdayssum AS ownerpodlatenessdayssum
+,   a.positivepodlatenessdayssum AS ownerpositivepodlatenessdayssum
+,   a.negativepodlatenessdayssum AS ownernegativepodlatenessdayssum
+,   a.arrivedatpodcompletenesscontainercount AS ownerarrivedatpodcompletenesscontainercount
+,   a.bookedetapodcompletenesscontainercount AS ownerbookedetapodcompletenesscontainercount
+,   a.customsreleasecompletenesscontainercount AS ownercustomsreleasecompletenesscontainercount
+,   a.emptyreturncompletenesscontainercount AS owneremptyreturncompletenesscontainercount
+,   a.etapodcompletenesscontainercount AS owneretapodcompletenesscontainercount
+,   a.fullcontainerdischargedatpodcompletenesscontainercount AS ownerfullcontainerdischargedatpodcompletenesscontainercount
+,   a.yardoutcompletenesscontainercount AS owneryardoutcompletenesscontainercount
+,   a.teuatpodsum AS ownerteuatpodsum
+,   a.bookedetapodcontainercount AS ownerbookedetapodcontainercount
+,   a.arrivedatpodcontainercount AS ownerarrivedatpodcontainercount
+,   a.vesseltransittimecontainercount AS ownervesseltransittimecontainercount
+,   a.vesseltransittimeperformancecontainercount AS ownervesseltransittimeperformancecontainercount
+,   a.positivevesseltransittimecontainercount AS ownerpositivevesseltransittimecontainercount
+,   a.negativevesseltransittimecontainercount AS ownernegativevesseltransittimecontainercount
+,   a.vesseltransittime0lessthanorequalto5dayscontainercount AS ownervesseltransittime0lessthanorequalto5dayscontainercount
+,   a.vesseltransittime5lessthanorequalto10dayscontainercount AS ownervesseltransittime5lessthanorequalto10dayscontainercount
+,   a.vesseltransittime10lessthanorequalto15dayscontainercount AS ownervesseltransittime10lessthanorequalto15dayscontainercount
+,   a.vesseltransittime15lessthanorequalto20dayscontainercount AS ownervesseltransittime15lessthanorequalto20dayscontainercount
+,   a.vesseltransittime20lessthanorequalto25dayscontainercount AS ownervesseltransittime20lessthanorequalto25dayscontainercount
+,   a.vesseltransittime25lessthanorequalto30dayscontainercount AS ownervesseltransittime25lessthanorequalto30dayscontainercount
+,   a.vesseltransittime30lessthanorequalto35dayscontainercount AS ownervesseltransittime30lessthanorequalto35dayscontainercount
+,   a.vesseltransittime35lessthanorequalto40dayscontainercount AS ownervesseltransittime35lessthanorequalto40dayscontainercount
+,   a.vesseltransittimegreaterthan40dayscontainercount AS ownervesseltransittimegreaterthan40dayscontainercount
+,   a.positivevesseltransittimedayssum AS ownerpositivevesseltransittimedayssum
+,   a.negativevesseltransittimedayssum AS ownernegativevesseltransittimedayssum
+,   a.minpositivevesseltransittimedayssum AS ownerminpositivevesseltransittimedayssum
+,   a.maxpositivevesseltransittimedayssum AS ownermaxpositivevesseltransittimedayssum
+,   a.vesselperformancegreaterthan10daysearlycontainercount AS ownervesselperformancegreaterthan10daysearlycontainercount
+,   a.vesselperformance9lessthanorequalto10daysearlycontainercount AS ownervesselperformance9lessthanorequalto10daysearlycontainercount
+,   a.vesselperformance8lessthanorequalto9daysearlycontainercount AS ownervesselperformance8lessthanorequalto9daysearlycontainercount
+,   a.vesselperformance7lessthanorequalto8daysearlycontainercount AS ownervesselperformance7lessthanorequalto8daysearlycontainercount
+,   a.vesselperformance6lessthanorequalto7daysearlycontainercount AS ownervesselperformance6lessthanorequalto7daysearlycontainercount
+,   a.vesselperformance5lessthanorequalto6daysearlycontainercount AS ownervesselperformance5lessthanorequalto6daysearlycontainercount
+,   a.vesselperformance4lessthanorequalto5daysearlycontainercount AS ownervesselperformance4lessthanorequalto5daysearlycontainercount
+,   a.vesselperformance3lessthanorequalto4daysearlycontainercount AS ownervesselperformance3lessthanorequalto4daysearlycontainercount
+,   a.vesselperformance2lessthanorequalto3daysearlycontainercount AS ownervesselperformance2lessthanorequalto3daysearlycontainercount
+,   a.vesselperformance1lessthanorequalto2daysearlycontainercount AS ownervesselperformance1lessthanorequalto2daysearlycontainercount
+,   a.vesselperformance0lessthanorequalto1daysearlycontainercount AS ownervesselperformance0lessthanorequalto1daysearlycontainercount
+,   a.vesselperformance0lessthanorequalto1dayslatecontainercount AS ownervesselperformance0lessthanorequalto1dayslatecontainercount
+,   a.vesselperformance1lessthanorequalto2dayslatecontainercount AS ownervesselperformance1lessthanorequalto2dayslatecontainercount
+,   a.vesselperformance2lessthanorequalto3dayslatecontainercount AS ownervesselperformance2lessthanorequalto3dayslatecontainercount
+,   a.vesselperformance3lessthanorequalto4dayslatecontainercount AS ownervesselperformance3lessthanorequalto4dayslatecontainercount
+,   a.vesselperformance4lessthanorequalto5dayslatecontainercount AS ownervesselperformance4lessthanorequalto5dayslatecontainercount
+,   a.vesselperformance5lessthanorequalto6dayslatecontainercount AS ownervesselperformance5lessthanorequalto6dayslatecontainercount
+,   a.vesselperformance6lessthanorequalto7dayslatecontainercount AS ownervesselperformance6lessthanorequalto7dayslatecontainercount
+,   a.vesselperformance7lessthanorequalto8dayslatecontainercount AS ownervesselperformance7lessthanorequalto8dayslatecontainercount
+,   a.vesselperformance8lessthanorequalto9dayslatecontainercount AS ownervesselperformance8lessthanorequalto9dayslatecontainercount
+,   a.vesselperformance9lessthanorequalto10dayslatecontainercount AS ownervesselperformance9lessthanorequalto10dayslatecontainercount
+,   a.vesselperformancegreaterthan10dayslatecontainercount AS ownervesselperformancegreaterthan10dayslatecontainercount
+,   a.customsreleasecontainercount AS ownercustomsreleasecontainercount
+,   a.customsreleasetimecontainercount AS ownercustomsreleasetimecontainercount
+,   a.positivecustomsreleasetimecontainercount AS ownerpositivecustomsreleasetimecontainercount
+,   a.negativecustomsreleasetimecontainercount AS ownernegativecustomsreleasetimecontainercount
+,   a.customsreleasetime0lessthanorequalto1dayscontainercount AS ownercustomsreleasetime0lessthanorequalto1dayscontainercount
+,   a.customsreleasetime1lessthanorequalto2dayscontainercount AS ownercustomsreleasetime1lessthanorequalto2dayscontainercount
+,   a.customsreleasetime2lessthanorequalto3dayscontainercount AS ownercustomsreleasetime2lessthanorequalto3dayscontainercount
+,   a.customsreleasetime3lessthanorequalto4dayscontainercount AS ownercustomsreleasetime3lessthanorequalto4dayscontainercount
+,   a.customsreleasetime4lessthanorequalto5dayscontainercount AS ownercustomsreleasetime4lessthanorequalto5dayscontainercount
+,   a.customsreleasetime5lessthanorequalto6dayscontainercount AS ownercustomsreleasetime5lessthanorequalto6dayscontainercount
+,   a.customsreleasetime6lessthanorequalto7dayscontainercount AS ownercustomsreleasetime6lessthanorequalto7dayscontainercount
+,   a.customsreleasetime7lessthanorequalto8dayscontainercount AS ownercustomsreleasetime7lessthanorequalto8dayscontainercount
+,   a.customsreleasetimegreaterthan8dayscontainercount AS ownercustomsreleasetimegreaterthan8dayscontainercount
+,   a.customsreleasetimedayssum AS ownercustomsreleasetimedayssum
+,   a.positivecustomsreleasetimedayssum AS ownerpositivecustomsreleasetimedayssum
+,   a.negativecustomsreleasetimedayssum AS ownernegativecustomsreleasetimedayssum
+,   a.minpositivecustomsreleasetimedayssum AS ownerminpositivecustomsreleasetimedayssum
+,   a.maxpositivecustomsreleasetimedayssum AS ownermaxpositivecustomsreleasetimedayssum
+,   a.fullcontainerdischargedatpodcontainercount AS ownerfullcontainerdischargedatpodcontainercount
+,   a.yardoutcontainercount AS owneryardoutcontainercount
+,   a.containertransittimecontainercount AS ownercontainertransittimecontainercount
+,   a.positivecontainertransittimecontainercount AS ownerpositivecontainertransittimecontainercount
+,   a.negativecontainertransittimecontainercount AS ownernegativecontainertransittimecontainercount
+,   a.containertransittime0lessthanorequalto5dayscontainercount AS ownercontainertransittime0lessthanorequalto5dayscontainercount
+,   a.containertransittime5lessthanorequalto10dayscontainercount AS ownercontainertransittime5lessthanorequalto10dayscontainercount
+,   a.containertransittime10lessthanorequalto15dayscontainercount AS ownercontainertransittime10lessthanorequalto15dayscontainercount
+,   a.containertransittime15lessthanorequalto20dayscontainercount AS ownercontainertransittime15lessthanorequalto20dayscontainercount
+,   a.containertransittime20lessthanorequalto25dayscontainercount AS ownercontainertransittime20lessthanorequalto25dayscontainercount
+,   a.containertransittime25lessthanorequalto30dayscontainercount AS ownercontainertransittime25lessthanorequalto30dayscontainercount
+,   a.containertransittime30lessthanorequalto35dayscontainercount AS ownercontainertransittime30lessthanorequalto35dayscontainercount
+,   a.containertransittime35lessthanorequalto40dayscontainercount AS ownercontainertransittime35lessthanorequalto40dayscontainercount
+,   a.containertransittimegreaterthan40dayscontainercount AS ownercontainertransittimegreaterthan40dayscontainercount
+,   a.containertransittimedayssum AS ownercontainertransittimedayssum
+,   a.positivecontainertransittimedayssum AS ownerpositivecontainertransittimedayssum
+,   a.negativecontainertransittimedayssum AS ownernegativecontainertransittimedayssum
+,   a.minpositivecontainertransittimedayssum AS ownerminpositivecontainertransittimedayssum
+,   a.maxpositivecontainertransittimedayssum AS ownermaxpositivecontainertransittimedayssum
+,   a.dwelltimeatpodcontainercount AS ownerdwelltimeatpodcontainercount
+,   a.positivedwelltimeatpodcontainercount AS ownerpositivedwelltimeatpodcontainercount
+,   a.negativedwelltimeatpodcontainercount AS ownernegativedwelltimeatpodcontainercount
+,   a.dwelltimeatpod0lessthanorequalto1dayscontainercount AS ownerdwelltimeatpod0lessthanorequalto1dayscontainercount
+,   a.dwelltimeatpod1lessthanorequalto2dayscontainercount AS ownerdwelltimeatpod1lessthanorequalto2dayscontainercount
+,   a.dwelltimeatpod2lessthanorequalto3dayscontainercount AS ownerdwelltimeatpod2lessthanorequalto3dayscontainercount
+,   a.dwelltimeatpod3lessthanorequalto4dayscontainercount AS ownerdwelltimeatpod3lessthanorequalto4dayscontainercount
+,   a.dwelltimeatpod4lessthanorequalto5dayscontainercount AS ownerdwelltimeatpod4lessthanorequalto5dayscontainercount
+,   a.dwelltimeatpod5lessthanorequalto6dayscontainercount AS ownerdwelltimeatpod5lessthanorequalto6dayscontainercount
+,   a.dwelltimeatpod6lessthanorequalto7dayscontainercount AS ownerdwelltimeatpod6lessthanorequalto7dayscontainercount
+,   a.dwelltimeatpod7lessthanorequalto8dayscontainercount AS ownerdwelltimeatpod7lessthanorequalto8dayscontainercount
+,   a.dwelltimeatpodgreaterthan8dayscontainercount AS ownerdwelltimeatpodgreaterthan8dayscontainercount
+,   a.dwelltimeatpoddayssum AS ownerdwelltimeatpoddayssum
+,   a.positivedwelltimeatpoddayssum AS ownerpositivedwelltimeatpoddayssum
+,   a.negativedwelltimeatpoddayssum AS ownernegativedwelltimeatpoddayssum
+,   a.minpositivedwelltimeatpoddayssum AS ownerminpositivedwelltimeatpoddayssum
+,   a.maxpositivedwelltimeatpoddayssum AS ownermaxpositivedwelltimeatpoddayssum
+,   a.totaltimeatpodcontainercount AS ownertotaltimeatpodcontainercount
+,   a.positivetotaltimeatpodcontainercount AS ownerpositivetotaltimeatpodcontainercount
+,   a.negativetotaltimeatpodcontainercount AS ownernegativetotaltimeatpodcontainercount
+,   a.totaltimeatpod0lessthanorequalto1dayscontainercount AS ownertotaltimeatpod0lessthanorequalto1dayscontainercount
+,   a.totaltimeatpod1lessthanorequalto2dayscontainercount AS ownertotaltimeatpod1lessthanorequalto2dayscontainercount
+,   a.totaltimeatpod2lessthanorequalto3dayscontainercount AS ownertotaltimeatpod2lessthanorequalto3dayscontainercount
+,   a.totaltimeatpod3lessthanorequalto4dayscontainercount AS ownertotaltimeatpod3lessthanorequalto4dayscontainercount
+,   a.totaltimeatpod4lessthanorequalto5dayscontainercount AS ownertotaltimeatpod4lessthanorequalto5dayscontainercount
+,   a.totaltimeatpod5lessthanorequalto6dayscontainercount AS ownertotaltimeatpod5lessthanorequalto6dayscontainercount
+,   a.totaltimeatpod6lessthanorequalto7dayscontainercount AS ownertotaltimeatpod6lessthanorequalto7dayscontainercount
+,   a.totaltimeatpod7lessthanorequalto8dayscontainercount AS ownertotaltimeatpod7lessthanorequalto8dayscontainercount
+,   a.totaltimeatpodgreaterthan8dayscontainercount AS ownertotaltimeatpodgreaterthan8dayscontainercount
+,   a.totaltimeatpoddayssum AS ownertotaltimeatpoddayssum
+,   a.positivetotaltimeatpoddayssum AS ownerpositivetotaltimeatpoddayssum
+,   a.negativetotaltimeatpoddayssum AS ownernegativetotaltimeatpoddayssum
+,   a.minpositivetotaltimeatpoddayssum AS ownerminpositivetotaltimeatpoddayssum
+,   a.maxpositivetotaltimeatpoddayssum AS ownermaxpositivetotaltimeatpoddayssum
+,   a.fulloutgatefrompolcontainercount AS ownerfulloutgatefrompolcontainercount
+,   a.fullcontainerdeliveryattrcontainercount AS ownerfullcontainerdeliveryattrcontainercount
+,   a.destinationinlandtransitcontainercount AS ownerdestinationinlandtransitcontainercount
+,   a.positivedestinationinlandtransitcontainercount AS ownerpositivedestinationinlandtransitcontainercount
+,   a.negativedestinationinlandtransitcontainercount AS ownernegativedestinationinlandtransitcontainercount
+,   a.destinationinlandtransit0lessthanorequalto1dayscontainercount AS ownerdestinationinlandtransit0lessthanorequalto1dayscontainercount
+,   a.destinationinlandtransit1lessthanorequalto2dayscontainercount AS ownerdestinationinlandtransit1lessthanorequalto2dayscontainercount
+,   a.destinationinlandtransit2lessthanorequalto3dayscontainercount AS ownerdestinationinlandtransit2lessthanorequalto3dayscontainercount
+,   a.destinationinlandtransit3lessthanorequalto4dayscontainercount AS ownerdestinationinlandtransit3lessthanorequalto4dayscontainercount
+,   a.destinationinlandtransit4lessthanorequalto5dayscontainercount AS ownerdestinationinlandtransit4lessthanorequalto5dayscontainercount
+,   a.destinationinlandtransitgreaterthan5dayscontainercount AS ownerdestinationinlandtransitgreaterthan5dayscontainercount
+,   a.destinationinlandtransitdayssum AS ownerdestinationinlandtransitdayssum
+,   a.positivedestinationinlandtransitdayssum AS ownerpositivedestinationinlandtransitdayssum
+,   a.negativedestinationinlandtransitdayssum AS ownernegativedestinationinlandtransitdayssum
+,   a.minpositivedestinationinlandtransitdayssum AS ownerminpositivedestinationinlandtransitdayssum
+,   a.maxpositivedestinationinlandtransitdayssum AS ownermaxpositivedestinationinlandtransitdayssum
+,   a.emptyreturncontainercount AS owneremptyreturncontainercount
+,   a.dwelltimeawayfrompodcontainercount AS ownerdwelltimeawayfrompodcontainercount
+,   a.positivedwelltimeawayfrompodcontainercount AS ownerpositivedwelltimeawayfrompodcontainercount
+,   a.negativedwelltimeawayfrompodcontainercount AS ownernegativedwelltimeawayfrompodcontainercount
+,   a.dwelltimeawayfrompod0lessthanorequalto1dayscontainercount AS ownerdwelltimeawayfrompod0lessthanorequalto1dayscontainercount
+,   a.dwelltimeawayfrompod1lessthanorequalto2dayscontainercount AS ownerdwelltimeawayfrompod1lessthanorequalto2dayscontainercount
+,   a.dwelltimeawayfrompod2lessthanorequalto3dayscontainercount AS ownerdwelltimeawayfrompod2lessthanorequalto3dayscontainercount
+,   a.dwelltimeawayfrompod3lessthanorequalto4dayscontainercount AS ownerdwelltimeawayfrompod3lessthanorequalto4dayscontainercount
+,   a.dwelltimeawayfrompod4lessthanorequalto5dayscontainercount AS ownerdwelltimeawayfrompod4lessthanorequalto5dayscontainercount
+,   a.dwelltimeawayfrompod5lessthanorequalto6dayscontainercount AS ownerdwelltimeawayfrompod5lessthanorequalto6dayscontainercount
+,   a.dwelltimeawayfrompod6lessthanorequalto7dayscontainercount AS ownerdwelltimeawayfrompod6lessthanorequalto7dayscontainercount
+,   a.dwelltimeawayfrompod7lessthanorequalto8dayscontainercount AS ownerdwelltimeawayfrompod7lessthanorequalto8dayscontainercount
+,   a.dwelltimeawayfrompodgreaterthan8dayscontainercount AS ownerdwelltimeawayfrompodgreaterthan8dayscontainercount
+,   a.dwelltimeawayfrompoddayssum AS ownerdwelltimeawayfrompoddayssum
+,   a.positivedwelltimeawayfrompoddayssum AS ownerpositivedwelltimeawayfrompoddayssum
+,   a.negativedwelltimeawayfrompoddayssum AS ownernegativedwelltimeawayfrompoddayssum
+,   a.minpositivedwelltimeawayfrompoddayssum AS ownerminpositivedwelltimeawayfrompoddayssum
+,   a.maxpositivedwelltimeawayfrompoddayssum AS ownermaxpositivedwelltimeawayfrompoddayssum
+,   a.outforstrippingcontainercount AS owneroutforstrippingcontainercount
+,   a.positiveoutforstrippingcontainercount AS ownerpositiveoutforstrippingcontainercount
+,   a.negativeoutforstrippingcontainercount AS ownernegativeoutforstrippingcontainercount
+,   a.outforstripping0lessthanorequalto1dayscontainercount AS owneroutforstripping0lessthanorequalto1dayscontainercount
+,   a.outforstripping1lessthanorequalto2dayscontainercount AS owneroutforstripping1lessthanorequalto2dayscontainercount
+,   a.outforstripping2lessthanorequalto3dayscontainercount AS owneroutforstripping2lessthanorequalto3dayscontainercount
+,   a.outforstripping3lessthanorequalto4dayscontainercount AS owneroutforstripping3lessthanorequalto4dayscontainercount
+,   a.outforstripping4lessthanorequalto5dayscontainercount AS owneroutforstripping4lessthanorequalto5dayscontainercount
+,   a.outforstripping5lessthanorequalto6dayscontainercount AS owneroutforstripping5lessthanorequalto6dayscontainercount
+,   a.outforstripping6lessthanorequalto7dayscontainercount AS owneroutforstripping6lessthanorequalto7dayscontainercount
+,   a.outforstripping7lessthanorequalto8dayscontainercount AS owneroutforstripping7lessthanorequalto8dayscontainercount
+,   a.outforstrippinggreaterthan8dayscontainercount AS owneroutforstrippinggreaterthan8dayscontainercount
+,   a.outforstrippingdayssum AS owneroutforstrippingdayssum
+,   a.positiveoutforstrippingdayssum AS ownerpositiveoutforstrippingdayssum
+,   a.negativeoutforstrippingdayssum AS ownernegativeoutforstrippingdayssum
+,   a.minpositiveoutforstrippingdayssum AS ownerminpositiveoutforstrippingdayssum
+,   a.maxpositiveoutforstrippingdayssum AS ownermaxpositiveoutforstrippingdayssum
+,   a.createdatecontainercount AS ownercreatedatecontainercount
+,   a.firstetdpolcompletenesscontainercount AS ownerfirstetdpolcompletenesscontainercount
+,   a.firstetapodcompletenesscontainercount AS ownerfirstetapodcompletenesscontainercount
+,   b.emptyoutgatecontainercount AS communityemptyoutgatecontainercount
+,   b.outforstuffingcontainercount AS communityoutforstuffingcontainercount
+,   b.positiveoutforstuffingcontainercount AS communitypositiveoutforstuffingcontainercount
+,   b.negativeoutforstuffingcontainercount AS communitynegativeoutforstuffingcontainercount
+,   b.outforstuffing0lessthanorequalto1dayscontainercount AS communityoutforstuffing0lessthanorequalto1dayscontainercount
+,   b.outforstuffing1lessthanorequalto2dayscontainercount AS communityoutforstuffing1lessthanorequalto2dayscontainercount
+,   b.outforstuffing2lessthanorequalto3dayscontainercount AS communityoutforstuffing2lessthanorequalto3dayscontainercount
+,   b.outforstuffing3lessthanorequalto4dayscontainercount AS communityoutforstuffing3lessthanorequalto4dayscontainercount
+,   b.outforstuffing4lessthanorequalto5dayscontainercount AS communityoutforstuffing4lessthanorequalto5dayscontainercount
+,   b.outforstuffing5lessthanorequalto6dayscontainercount AS communityoutforstuffing5lessthanorequalto6dayscontainercount
+,   b.outforstuffing6lessthanorequalto7dayscontainercount AS communityoutforstuffing6lessthanorequalto7dayscontainercount
+,   b.outforstuffing7lessthanorequalto8dayscontainercount AS communityoutforstuffing7lessthanorequalto8dayscontainercount
+,   b.outforstuffinggreaterthan8dayscontainercount AS communityoutforstuffinggreaterthan8dayscontainercount
+,   b.outforstuffingdayssum AS communityoutforstuffingdayssum
+,   b.positiveoutforstuffingdayssum AS communitypositiveoutforstuffingdayssum
+,   b.negativeoutforstuffingdayssum AS communitynegativeoutforstuffingdayssum
+,   b.minpositiveoutforstuffingdays AS communityminpositiveoutforstuffingdays
+,   b.maxpositiveoutforstuffingdays AS communitymaxpositiveoutforstuffingdays
+,   b.yardincontainercount AS communityyardincontainercount
+,   b.dwelltimeawayfrompolcontainercount AS communitydwelltimeawayfrompolcontainercount
+,   b.positivedwelltimeawayfrompolcontainercount AS communitypositivedwelltimeawayfrompolcontainercount
+,   b.negativedwelltimeawayfrompolcontainercount AS communitynegativedwelltimeawayfrompolcontainercount
+,   b.dwelltimeawayfrompol0lessthanorequalto1dayscontainercount AS communitydwelltimeawayfrompol0lessthanorequalto1dayscontainercount
+,   b.dwelltimeawayfrompol1lessthanorequalto2dayscontainercount AS communitydwelltimeawayfrompol1lessthanorequalto2dayscontainercount
+,   b.dwelltimeawayfrompol2lessthanorequalto3dayscontainercount AS communitydwelltimeawayfrompol2lessthanorequalto3dayscontainercount
+,   b.dwelltimeawayfrompol3lessthanorequalto4dayscontainercount AS communitydwelltimeawayfrompol3lessthanorequalto4dayscontainercount
+,   b.dwelltimeawayfrompol4lessthanorequalto5dayscontainercount AS communitydwelltimeawayfrompol4lessthanorequalto5dayscontainercount
+,   b.dwelltimeawayfrompol5lessthanorequalto6dayscontainercount AS communitydwelltimeawayfrompol5lessthanorequalto6dayscontainercount
+,   b.dwelltimeawayfrompol6lessthanorequalto7dayscontainercount AS communitydwelltimeawayfrompol6lessthanorequalto7dayscontainercount
+,   b.dwelltimeawayfrompol7lessthanorequalto8dayscontainercount AS communitydwelltimeawayfrompol7lessthanorequalto8dayscontainercount
+,   b.dwelltimeawayfrompolgreaterthan8dayscontainercount AS communitydwelltimeawayfrompolgreaterthan8dayscontainercount
+,   b.dwelltimeawayfrompoldayssum AS communitydwelltimeawayfrompoldayssum
+,   b.positivedwelltimeawayfrompoldayssum AS communitypositivedwelltimeawayfrompoldayssum
+,   b.negativedwelltimeawayfrompoldayssum AS communitynegativedwelltimeawayfrompoldayssum
+,   b.minpositivedwelltimeawayfrompoldays AS communityminpositivedwelltimeawayfrompoldays
+,   b.maxpositivedwelltimeawayfrompoldays AS communitymaxpositivedwelltimeawayfrompoldays
+,   b.origininlandtransitcontainercount AS communityorigininlandtransitcontainercount
+,   b.positiveorigininlandtransitcontainercount AS communitypositiveorigininlandtransitcontainercount
+,   b.negativeorigininlandtransitcontainercount AS communitynegativeorigininlandtransitcontainercount
+,   b.origininlandtransit0lessthanorequalto1dayscontainercount AS communityorigininlandtransit0lessthanorequalto1dayscontainercount
+,   b.origininlandtransit1lessthanorequalto2dayscontainercount AS communityorigininlandtransit1lessthanorequalto2dayscontainercount
+,   b.origininlandtransit2lessthanorequalto3dayscontainercount AS communityorigininlandtransit2lessthanorequalto3dayscontainercount
+,   b.origininlandtransit3lessthanorequalto4dayscontainercount AS communityorigininlandtransit3lessthanorequalto4dayscontainercount
+,   b.origininlandtransit4lessthanorequalto5dayscontainercount AS communityorigininlandtransit4lessthanorequalto5dayscontainercount
+,   b.origininlandtransitgreaterthan5dayscontainercount AS communityorigininlandtransitgreaterthan5dayscontainercount
+,   b.origininlandtransitdayssum AS communityorigininlandtransitdayssum
+,   b.positiveorigininlandtransitdayssum AS communitypositiveorigininlandtransitdayssum
+,   b.negativeorigininlandtransitdayssum AS communitynegativeorigininlandtransitdayssum
+,   b.minpositiveorigininlandtransitdays AS communityminpositiveorigininlandtransitdays
+,   b.maxpositiveorigininlandtransitdays AS communitymaxpositiveorigininlandtransitdays
+,   b.onboardcontainercount AS communityonboardcontainercount
+,   b.dwelltimeatpolcontainercount AS communitydwelltimeatpolcontainercount
+,   b.positivedwelltimeatpolcontainercount AS communitypositivedwelltimeatpolcontainercount
+,   b.negativedwelltimeatpolcontainercount AS communitynegativedwelltimeatpolcontainercount
+,   b.dwelltimeatpoldayssum AS communitydwelltimeatpoldayssum
+,   b.positivedwelltimeatpoldayssum AS communitypositivedwelltimeatpoldayssum
+,   b.negativedwelltimeatpoldayssum AS communitynegativedwelltimeatpoldayssum
+,   b.minpositivedwelltimeatpoldays AS communityminpositivedwelltimeatpoldays
+,   b.maxpositivedwelltimeatpoldays AS communitymaxpositivedwelltimeatpoldays
+,   b.bookedetdpolcontainercount AS communitybookedetdpolcontainercount
+,   b.btdpolcontainercount AS communitybtdpolcontainercount
+,   b.pollatenesscontainercount AS communitypollatenesscontainercount
+,   b.otdperformancecontainercount AS communityotdperformancecontainercount
+,   b.positivepollatenesscontainercount AS communitypositivepollatenesscontainercount
+,   b.negativepollatenesscontainercount AS communitynegativepollatenesscontainercount
+,   b.otdperformancegreaterthan8daysearly AS communityotdperformancegreaterthan8daysearly
+,   b.otdperformance7lessthanorequalto8daysearly AS communityotdperformance7lessthanorequalto8daysearly
+,   b.otdperformance6lessthanorequalto7daysearly AS communityotdperformance6lessthanorequalto7daysearly
+,   b.otdperformance5lessthanorequalto6daysearly AS communityotdperformance5lessthanorequalto6daysearly
+,   b.otdperformance4lessthanorequalto5daysearly AS communityotdperformance4lessthanorequalto5daysearly
+,   b.otdperformance3lessthanorequalto4daysearly AS communityotdperformance3lessthanorequalto4daysearly
+,   b.otdperformance2lessthanorequalto3daysearly AS communityotdperformance2lessthanorequalto3daysearly
+,   b.otdperformance1lessthanorequalto2daysearly AS communityotdperformance1lessthanorequalto2daysearly
+,   b.otdperformance0lessthanorequalto1daysearly AS communityotdperformance0lessthanorequalto1daysearly
+,   b.otdperformance0lessthanorequalto1dayslate AS communityotdperformance0lessthanorequalto1dayslate
+,   b.otdperformance1lessthanorequalto2dayslate AS communityotdperformance1lessthanorequalto2dayslate
+,   b.otdperformance2lessthanorequalto3dayslate AS communityotdperformance2lessthanorequalto3dayslate
+,   b.otdperformance3lessthanorequalto4dayslate AS communityotdperformance3lessthanorequalto4dayslate
+,   b.otdperformance4lessthanorequalto5dayslate AS communityotdperformance4lessthanorequalto5dayslate
+,   b.otdperformancegreaterthan5dayslate AS communityotdperformancegreaterthan5dayslate
+,   b.otdperformance5lessthanorequalto6dayslate AS communityotdperformance5lessthanorequalto6dayslate
+,   b.otdperformance6lessthanorequalto7dayslate AS communityotdperformance6lessthanorequalto7dayslate
+,   b.otdperformance7lessthanorequalto8dayslate AS communityotdperformance7lessthanorequalto8dayslate
+,   b.otdperformancegreaterthan8dayslate AS communityotdperformancegreaterthan8dayslate
+,   b.pollatenessdayssum AS communitypollatenessdayssum
+,   b.positivepollatenessdayssum AS communitypositivepollatenessdayssum
+,   b.negativepollatenessdayssum AS communitynegativepollatenessdayssum
+,   b.arrivedattransshipmentcompletenesscontainercount AS communityarrivedattransshipmentcompletenesscontainercount
+,   b.bookedetdpolcompletenesscontainercount AS communitybookedetdpolcompletenesscontainercount
+,   b.departedfrompolcompletenesscontainercount AS communitydepartedfrompolcompletenesscontainercount
+,   b.departedfromtransshipmentcompletenesscontainercount AS communitydepartedfromtransshipmentcompletenesscontainercount
+,   b.emptyoutgatecompletenesscontainercount AS communityemptyoutgatecompletenesscontainercount
+,   b.emptyoutfrominlandcompletenesscontainercount AS communityemptyoutfrominlandcompletenesscontainercount
+,   b.emptyoutfromportcompletenesscontainercount AS communityemptyoutfromportcompletenesscontainercount
+,   b.etdpolcompletenesscontainercount AS communityetdpolcompletenesscontainercount
+,   b.fulloutgatefrompolcompletenesscontainercount AS communityfulloutgatefrompolcompletenesscontainercount
+,   b.onboardcompletenesscontainercount AS communityonboardcompletenesscontainercount
+,   b.yardincompletenesscontainercount AS communityyardincompletenesscontainercount
+,   b.speedkmshr AS communityspeedkmshr
+,   b.teusum AS communityteusum
+,   b.teuatpolsum AS communityteuatpolsum
+,   b.containertransittimesum AS communitycontainertransittimesum
+,   b.containertransittimecount AS communitycontainertransittimecount
+,   b.vesseltransittimesum AS communityvesseltransittimesum
+,   b.vesseltransittimecount AS communityvesseltransittimecount
+,   b.otdperformancesum AS communityotdperformancesum
+,   b.otdperformancecount AS communityotdperformancecount
+,   b.otaperformancesum AS communityotaperformancesum
+,   b.otaperformancecount AS communityotaperformancecount
+,   b.pollatenesssum AS communitypollatenesssum
+,   b.pollatenesscount AS communitypollatenesscount
+,   b.podlatenesssum AS communitypodlatenesssum
+,   b.podlatenesscount AS communitypodlatenesscount
+,   b.speeddistancekms AS communityspeeddistancekms
+,   b.speedtimehr AS communityspeedtimehr
+,   b.totaltimeatpolsum AS communitytotaltimeatpolsum
+,   b.totaltimeatpolcount AS communitytotaltimeatpolcount
+,   b.totaltimeatpodsum AS communitytotaltimeatpodsum
+,   b.totaltimeatpodcount AS communitytotaltimeatpodcount
+,   b.teuranksum AS communityteuranksum
+,   b.teurankcount AS communityteurankcount
+,   b.teuatpolranksum AS communityteuatpolranksum
+,   b.teuatpolrankcount AS communityteuatpolrankcount
+,   b.teuatpodranksum AS communityteuatpodranksum
+,   b.teuatpodrankcount AS communityteuatpodrankcount
+,   b.departedfrompolcontainercount AS communitydepartedfrompolcontainercount
+,   b.totaltimeatpolcontainercount AS communitytotaltimeatpolcontainercount
+,   b.positivetotaltimeatpolcontainercount AS communitypositivetotaltimeatpolcontainercount
+,   b.negativetotaltimeatpolcontainercount AS communitynegativetotaltimeatpolcontainercount
+,   b.totaltimeatpol0lessthanorequalto1dayscontainercount AS communitytotaltimeatpol0lessthanorequalto1dayscontainercount
+,   b.totaltimeatpol1lessthanorequalto2dayscontainercount AS communitytotaltimeatpol1lessthanorequalto2dayscontainercount
+,   b.totaltimeatpol2lessthanorequalto3dayscontainercount AS communitytotaltimeatpol2lessthanorequalto3dayscontainercount
+,   b.totaltimeatpol3lessthanorequalto4dayscontainercount AS communitytotaltimeatpol3lessthanorequalto4dayscontainercount
+,   b.totaltimeatpol4lessthanorequalto5dayscontainercount AS communitytotaltimeatpol4lessthanorequalto5dayscontainercount
+,   b.totaltimeatpol5lessthanorequalto6dayscontainercount AS communitytotaltimeatpol5lessthanorequalto6dayscontainercount
+,   b.totaltimeatpol6lessthanorequalto7dayscontainercount AS communitytotaltimeatpol6lessthanorequalto7dayscontainercount
+,   b.totaltimeatpol7lessthanorequalto8dayscontainercount AS communitytotaltimeatpol7lessthanorequalto8dayscontainercount
+,   b.totaltimeatpolgreaterthan8dayscontainercount AS communitytotaltimeatpolgreaterthan8dayscontainercount
+,   b.totaltimeatpoldayssum AS communitytotaltimeatpoldayssum
+,   b.positivetotaltimeatpoldayssum AS communitypositivetotaltimeatpoldayssum
+,   b.negativetotaltimeatpoldayssum AS communitynegativetotaltimeatpoldayssum
+,   b.minpositivetotaltimeatpoldayssum AS communityminpositivetotaltimeatpoldayssum
+,   b.maxpositivetotaltimeatpoldayssum AS communitymaxpositivetotaltimeatpoldayssum
+,   b.arrivedattransshipmentcontainercount AS communityarrivedattransshipmentcontainercount
+,   b.departedfromtransshipmentcontainercount AS communitydepartedfromtransshipmentcontainercount
+,   b.dwelltimeattransshipmentportcontainercount AS communitydwelltimeattransshipmentportcontainercount
+,   b.positivedwelltimeattransshipmentportcontainercount AS communitypositivedwelltimeattransshipmentportcontainercount
+,   b.negativedwelltimeattransshipmentportcontainercount AS communitynegativedwelltimeattransshipmentportcontainercount
+,   b.dwelltimeattransshipmentport0lessthanorequalto1dayscontainercount AS communitydwelltimeattransshipmentport0lessthanorequalto1dayscontainercount
+,   b.dwelltimeattransshipmentport1lessthanorequalto2dayscontainercount AS communitydwelltimeattransshipmentport1lessthanorequalto2dayscontainercount
+,   b.dwelltimeattransshipmentport2lessthanorequalto3dayscontainercount AS communitydwelltimeattransshipmentport2lessthanorequalto3dayscontainercount
+,   b.dwelltimeattransshipmentport3lessthanorequalto4dayscontainercount AS communitydwelltimeattransshipmentport3lessthanorequalto4dayscontainercount
+,   b.dwelltimeattransshipmentport4lessthanorequalto5dayscontainercount AS communitydwelltimeattransshipmentport4lessthanorequalto5dayscontainercount
+,   b.dwelltimeattransshipmentportgreaterthan5dayscontainercount AS communitydwelltimeattransshipmentportgreaterthan5dayscontainercount
+,   b.dwelltimeattransshipmentportdayssum AS communitydwelltimeattransshipmentportdayssum
+,   b.positivedwelltimeattransshipmentportdayssum AS communitypositivedwelltimeattransshipmentportdayssum
+,   b.negativedwelltimeattransshipmentportdayssum AS communitynegativedwelltimeattransshipmentportdayssum
+,   b.minpositivedwelltimeattransshipmentportdayssum AS communityminpositivedwelltimeattransshipmentportdayssum
+,   b.maxpositivedwelltimeattransshipmentportdayssum AS communitymaxpositivedwelltimeattransshipmentportdayssum
+,   b.btapodcontainercount AS communitybtapodcontainercount
+,   b.podlatenesscontainercount AS communitypodlatenesscontainercount
+,   b.otaperformancecontainercount AS communityotaperformancecontainercount
+,   b.positivepodlatenesscontainercount AS communitypositivepodlatenesscontainercount
+,   b.negativepodlatenesscontainercount AS communitynegativepodlatenesscontainercount
+,   b.otaperformancegreaterthan8daysearly AS communityotaperformancegreaterthan8daysearly
+,   b.otaperformance7lessthanorequalto8daysearly AS communityotaperformance7lessthanorequalto8daysearly
+,   b.otaperformance6lessthanorequalto7daysearly AS communityotaperformance6lessthanorequalto7daysearly
+,   b.otaperformance5lessthanorequalto6daysearly AS communityotaperformance5lessthanorequalto6daysearly
+,   b.otaperformance4lessthanorequalto5daysearly AS communityotaperformance4lessthanorequalto5daysearly
+,   b.otaperformance3lessthanorequalto4daysearly AS communityotaperformance3lessthanorequalto4daysearly
+,   b.otaperformance2lessthanorequalto3daysearly AS communityotaperformance2lessthanorequalto3daysearly
+,   b.otaperformance1lessthanorequalto2daysearly AS communityotaperformance1lessthanorequalto2daysearly
+,   b.otaperformance0lessthanorequalto1daysearly AS communityotaperformance0lessthanorequalto1daysearly
+,   b.otaperformance0lessthanorequalto1dayslate AS communityotaperformance0lessthanorequalto1dayslate
+,   b.otaperformance1lessthanorequalto2dayslate AS communityotaperformance1lessthanorequalto2dayslate
+,   b.otaperformance2lessthanorequalto3dayslate AS communityotaperformance2lessthanorequalto3dayslate
+,   b.otaperformance3lessthanorequalto4dayslate AS communityotaperformance3lessthanorequalto4dayslate
+,   b.otaperformance4lessthanorequalto5dayslate AS communityotaperformance4lessthanorequalto5dayslate
+,   b.otaperformancegreaterthan5dayslate AS communityotaperformancegreaterthan5dayslate
+,   b.otaperformance5lessthanorequalto6dayslate AS communityotaperformance5lessthanorequalto6dayslate
+,   b.otaperformance6lessthanorequalto7dayslate AS communityotaperformance6lessthanorequalto7dayslate
+,   b.otaperformance7lessthanorequalto8dayslate AS communityotaperformance7lessthanorequalto8dayslate
+,   b.otaperformancegreaterthan8dayslate AS communityotaperformancegreaterthan8dayslate
+,   b.podlatenessdayssum AS communitypodlatenessdayssum
+,   b.positivepodlatenessdayssum AS communitypositivepodlatenessdayssum
+,   b.negativepodlatenessdayssum AS communitynegativepodlatenessdayssum
+,   b.arrivedatpodcompletenesscontainercount AS communityarrivedatpodcompletenesscontainercount
+,   b.bookedetapodcompletenesscontainercount AS communitybookedetapodcompletenesscontainercount
+,   b.customsreleasecompletenesscontainercount AS communitycustomsreleasecompletenesscontainercount
+,   b.emptyreturncompletenesscontainercount AS communityemptyreturncompletenesscontainercount
+,   b.etapodcompletenesscontainercount AS communityetapodcompletenesscontainercount
+,   b.fullcontainerdischargedatpodcompletenesscontainercount AS communityfullcontainerdischargedatpodcompletenesscontainercount
+,   b.yardoutcompletenesscontainercount AS communityyardoutcompletenesscontainercount
+,   b.teuatpodsum AS communityteuatpodsum
+,   b.bookedetapodcontainercount AS communitybookedetapodcontainercount
+,   b.arrivedatpodcontainercount AS communityarrivedatpodcontainercount
+,   b.vesseltransittimecontainercount AS communityvesseltransittimecontainercount
+,   b.vesseltransittimeperformancecontainercount AS communityvesseltransittimeperformancecontainercount
+,   b.positivevesseltransittimecontainercount AS communitypositivevesseltransittimecontainercount
+,   b.negativevesseltransittimecontainercount AS communitynegativevesseltransittimecontainercount
+,   b.vesseltransittime0lessthanorequalto5dayscontainercount AS communityvesseltransittime0lessthanorequalto5dayscontainercount
+,   b.vesseltransittime5lessthanorequalto10dayscontainercount AS communityvesseltransittime5lessthanorequalto10dayscontainercount
+,   b.vesseltransittime10lessthanorequalto15dayscontainercount AS communityvesseltransittime10lessthanorequalto15dayscontainercount
+,   b.vesseltransittime15lessthanorequalto20dayscontainercount AS communityvesseltransittime15lessthanorequalto20dayscontainercount
+,   b.vesseltransittime20lessthanorequalto25dayscontainercount AS communityvesseltransittime20lessthanorequalto25dayscontainercount
+,   b.vesseltransittime25lessthanorequalto30dayscontainercount AS communityvesseltransittime25lessthanorequalto30dayscontainercount
+,   b.vesseltransittime30lessthanorequalto35dayscontainercount AS communityvesseltransittime30lessthanorequalto35dayscontainercount
+,   b.vesseltransittime35lessthanorequalto40dayscontainercount AS communityvesseltransittime35lessthanorequalto40dayscontainercount
+,   b.vesseltransittimegreaterthan40dayscontainercount AS communityvesseltransittimegreaterthan40dayscontainercount
+,   b.positivevesseltransittimedayssum AS communitypositivevesseltransittimedayssum
+,   b.negativevesseltransittimedayssum AS communitynegativevesseltransittimedayssum
+,   b.minpositivevesseltransittimedayssum AS communityminpositivevesseltransittimedayssum
+,   b.maxpositivevesseltransittimedayssum AS communitymaxpositivevesseltransittimedayssum
+,   b.vesselperformancegreaterthan10daysearlycontainercount AS communityvesselperformancegreaterthan10daysearlycontainercount
+,   b.vesselperformance9lessthanorequalto10daysearlycontainercount AS communityvesselperformance9lessthanorequalto10daysearlycontainercount
+,   b.vesselperformance8lessthanorequalto9daysearlycontainercount AS communityvesselperformance8lessthanorequalto9daysearlycontainercount
+,   b.vesselperformance7lessthanorequalto8daysearlycontainercount AS communityvesselperformance7lessthanorequalto8daysearlycontainercount
+,   b.vesselperformance6lessthanorequalto7daysearlycontainercount AS communityvesselperformance6lessthanorequalto7daysearlycontainercount
+,   b.vesselperformance5lessthanorequalto6daysearlycontainercount AS communityvesselperformance5lessthanorequalto6daysearlycontainercount
+,   b.vesselperformance4lessthanorequalto5daysearlycontainercount AS communityvesselperformance4lessthanorequalto5daysearlycontainercount
+,   b.vesselperformance3lessthanorequalto4daysearlycontainercount AS communityvesselperformance3lessthanorequalto4daysearlycontainercount
+,   b.vesselperformance2lessthanorequalto3daysearlycontainercount AS communityvesselperformance2lessthanorequalto3daysearlycontainercount
+,   b.vesselperformance1lessthanorequalto2daysearlycontainercount AS communityvesselperformance1lessthanorequalto2daysearlycontainercount
+,   b.vesselperformance0lessthanorequalto1daysearlycontainercount AS communityvesselperformance0lessthanorequalto1daysearlycontainercount
+,   b.vesselperformance0lessthanorequalto1dayslatecontainercount AS communityvesselperformance0lessthanorequalto1dayslatecontainercount
+,   b.vesselperformance1lessthanorequalto2dayslatecontainercount AS communityvesselperformance1lessthanorequalto2dayslatecontainercount
+,   b.vesselperformance2lessthanorequalto3dayslatecontainercount AS communityvesselperformance2lessthanorequalto3dayslatecontainercount
+,   b.vesselperformance3lessthanorequalto4dayslatecontainercount AS communityvesselperformance3lessthanorequalto4dayslatecontainercount
+,   b.vesselperformance4lessthanorequalto5dayslatecontainercount AS communityvesselperformance4lessthanorequalto5dayslatecontainercount
+,   b.vesselperformance5lessthanorequalto6dayslatecontainercount AS communityvesselperformance5lessthanorequalto6dayslatecontainercount
+,   b.vesselperformance6lessthanorequalto7dayslatecontainercount AS communityvesselperformance6lessthanorequalto7dayslatecontainercount
+,   b.vesselperformance7lessthanorequalto8dayslatecontainercount AS communityvesselperformance7lessthanorequalto8dayslatecontainercount
+,   b.vesselperformance8lessthanorequalto9dayslatecontainercount AS communityvesselperformance8lessthanorequalto9dayslatecontainercount
+,   b.vesselperformance9lessthanorequalto10dayslatecontainercount AS communityvesselperformance9lessthanorequalto10dayslatecontainercount
+,   b.vesselperformancegreaterthan10dayslatecontainercount AS communityvesselperformancegreaterthan10dayslatecontainercount
+,   b.customsreleasecontainercount AS communitycustomsreleasecontainercount
+,   b.customsreleasetimecontainercount AS communitycustomsreleasetimecontainercount
+,   b.positivecustomsreleasetimecontainercount AS communitypositivecustomsreleasetimecontainercount
+,   b.negativecustomsreleasetimecontainercount AS communitynegativecustomsreleasetimecontainercount
+,   b.customsreleasetime0lessthanorequalto1dayscontainercount AS communitycustomsreleasetime0lessthanorequalto1dayscontainercount
+,   b.customsreleasetime1lessthanorequalto2dayscontainercount AS communitycustomsreleasetime1lessthanorequalto2dayscontainercount
+,   b.customsreleasetime2lessthanorequalto3dayscontainercount AS communitycustomsreleasetime2lessthanorequalto3dayscontainercount
+,   b.customsreleasetime3lessthanorequalto4dayscontainercount AS communitycustomsreleasetime3lessthanorequalto4dayscontainercount
+,   b.customsreleasetime4lessthanorequalto5dayscontainercount AS communitycustomsreleasetime4lessthanorequalto5dayscontainercount
+,   b.customsreleasetime5lessthanorequalto6dayscontainercount AS communitycustomsreleasetime5lessthanorequalto6dayscontainercount
+,   b.customsreleasetime6lessthanorequalto7dayscontainercount AS communitycustomsreleasetime6lessthanorequalto7dayscontainercount
+,   b.customsreleasetime7lessthanorequalto8dayscontainercount AS communitycustomsreleasetime7lessthanorequalto8dayscontainercount
+,   b.customsreleasetimegreaterthan8dayscontainercount AS communitycustomsreleasetimegreaterthan8dayscontainercount
+,   b.customsreleasetimedayssum AS communitycustomsreleasetimedayssum
+,   b.positivecustomsreleasetimedayssum AS communitypositivecustomsreleasetimedayssum
+,   b.negativecustomsreleasetimedayssum AS communitynegativecustomsreleasetimedayssum
+,   b.minpositivecustomsreleasetimedayssum AS communityminpositivecustomsreleasetimedayssum
+,   b.maxpositivecustomsreleasetimedayssum AS communitymaxpositivecustomsreleasetimedayssum
+,   b.fullcontainerdischargedatpodcontainercount AS communityfullcontainerdischargedatpodcontainercount
+,   b.yardoutcontainercount AS communityyardoutcontainercount
+,   b.containertransittimecontainercount AS communitycontainertransittimecontainercount
+,   b.positivecontainertransittimecontainercount AS communitypositivecontainertransittimecontainercount
+,   b.negativecontainertransittimecontainercount AS communitynegativecontainertransittimecontainercount
+,   b.containertransittime0lessthanorequalto5dayscontainercount AS communitycontainertransittime0lessthanorequalto5dayscontainercount
+,   b.containertransittime5lessthanorequalto10dayscontainercount AS communitycontainertransittime5lessthanorequalto10dayscontainercount
+,   b.containertransittime10lessthanorequalto15dayscontainercount AS communitycontainertransittime10lessthanorequalto15dayscontainercount
+,   b.containertransittime15lessthanorequalto20dayscontainercount AS communitycontainertransittime15lessthanorequalto20dayscontainercount
+,   b.containertransittime20lessthanorequalto25dayscontainercount AS communitycontainertransittime20lessthanorequalto25dayscontainercount
+,   b.containertransittime25lessthanorequalto30dayscontainercount AS communitycontainertransittime25lessthanorequalto30dayscontainercount
+,   b.containertransittime30lessthanorequalto35dayscontainercount AS communitycontainertransittime30lessthanorequalto35dayscontainercount
+,   b.containertransittime35lessthanorequalto40dayscontainercount AS communitycontainertransittime35lessthanorequalto40dayscontainercount
+,   b.containertransittimegreaterthan40dayscontainercount AS communitycontainertransittimegreaterthan40dayscontainercount
+,   b.containertransittimedayssum AS communitycontainertransittimedayssum
+,   b.positivecontainertransittimedayssum AS communitypositivecontainertransittimedayssum
+,   b.negativecontainertransittimedayssum AS communitynegativecontainertransittimedayssum
+,   b.minpositivecontainertransittimedayssum AS communityminpositivecontainertransittimedayssum
+,   b.maxpositivecontainertransittimedayssum AS communitymaxpositivecontainertransittimedayssum
+,   b.dwelltimeatpodcontainercount AS communitydwelltimeatpodcontainercount
+,   b.positivedwelltimeatpodcontainercount AS communitypositivedwelltimeatpodcontainercount
+,   b.negativedwelltimeatpodcontainercount AS communitynegativedwelltimeatpodcontainercount
+,   b.dwelltimeatpod0lessthanorequalto1dayscontainercount AS communitydwelltimeatpod0lessthanorequalto1dayscontainercount
+,   b.dwelltimeatpod1lessthanorequalto2dayscontainercount AS communitydwelltimeatpod1lessthanorequalto2dayscontainercount
+,   b.dwelltimeatpod2lessthanorequalto3dayscontainercount AS communitydwelltimeatpod2lessthanorequalto3dayscontainercount
+,   b.dwelltimeatpod3lessthanorequalto4dayscontainercount AS communitydwelltimeatpod3lessthanorequalto4dayscontainercount
+,   b.dwelltimeatpod4lessthanorequalto5dayscontainercount AS communitydwelltimeatpod4lessthanorequalto5dayscontainercount
+,   b.dwelltimeatpod5lessthanorequalto6dayscontainercount AS communitydwelltimeatpod5lessthanorequalto6dayscontainercount
+,   b.dwelltimeatpod6lessthanorequalto7dayscontainercount AS communitydwelltimeatpod6lessthanorequalto7dayscontainercount
+,   b.dwelltimeatpod7lessthanorequalto8dayscontainercount AS communitydwelltimeatpod7lessthanorequalto8dayscontainercount
+,   b.dwelltimeatpodgreaterthan8dayscontainercount AS communitydwelltimeatpodgreaterthan8dayscontainercount
+,   b.dwelltimeatpoddayssum AS communitydwelltimeatpoddayssum
+,   b.positivedwelltimeatpoddayssum AS communitypositivedwelltimeatpoddayssum
+,   b.negativedwelltimeatpoddayssum AS communitynegativedwelltimeatpoddayssum
+,   b.minpositivedwelltimeatpoddayssum AS communityminpositivedwelltimeatpoddayssum
+,   b.maxpositivedwelltimeatpoddayssum AS communitymaxpositivedwelltimeatpoddayssum
+,   b.totaltimeatpodcontainercount AS communitytotaltimeatpodcontainercount
+,   b.positivetotaltimeatpodcontainercount AS communitypositivetotaltimeatpodcontainercount
+,   b.negativetotaltimeatpodcontainercount AS communitynegativetotaltimeatpodcontainercount
+,   b.totaltimeatpod0lessthanorequalto1dayscontainercount AS communitytotaltimeatpod0lessthanorequalto1dayscontainercount
+,   b.totaltimeatpod1lessthanorequalto2dayscontainercount AS communitytotaltimeatpod1lessthanorequalto2dayscontainercount
+,   b.totaltimeatpod2lessthanorequalto3dayscontainercount AS communitytotaltimeatpod2lessthanorequalto3dayscontainercount
+,   b.totaltimeatpod3lessthanorequalto4dayscontainercount AS communitytotaltimeatpod3lessthanorequalto4dayscontainercount
+,   b.totaltimeatpod4lessthanorequalto5dayscontainercount AS communitytotaltimeatpod4lessthanorequalto5dayscontainercount
+,   b.totaltimeatpod5lessthanorequalto6dayscontainercount AS communitytotaltimeatpod5lessthanorequalto6dayscontainercount
+,   b.totaltimeatpod6lessthanorequalto7dayscontainercount AS communitytotaltimeatpod6lessthanorequalto7dayscontainercount
+,   b.totaltimeatpod7lessthanorequalto8dayscontainercount AS communitytotaltimeatpod7lessthanorequalto8dayscontainercount
+,   b.totaltimeatpodgreaterthan8dayscontainercount AS communitytotaltimeatpodgreaterthan8dayscontainercount
+,   b.totaltimeatpoddayssum AS communitytotaltimeatpoddayssum
+,   b.positivetotaltimeatpoddayssum AS communitypositivetotaltimeatpoddayssum
+,   b.negativetotaltimeatpoddayssum AS communitynegativetotaltimeatpoddayssum
+,   b.minpositivetotaltimeatpoddayssum AS communityminpositivetotaltimeatpoddayssum
+,   b.maxpositivetotaltimeatpoddayssum AS communitymaxpositivetotaltimeatpoddayssum
+,   b.fulloutgatefrompolcontainercount AS communityfulloutgatefrompolcontainercount
+,   b.fullcontainerdeliveryattrcontainercount AS communityfullcontainerdeliveryattrcontainercount
+,   b.destinationinlandtransitcontainercount AS communitydestinationinlandtransitcontainercount
+,   b.positivedestinationinlandtransitcontainercount AS communitypositivedestinationinlandtransitcontainercount
+,   b.negativedestinationinlandtransitcontainercount AS communitynegativedestinationinlandtransitcontainercount
+,   b.destinationinlandtransit0lessthanorequalto1dayscontainercount AS communitydestinationinlandtransit0lessthanorequalto1dayscontainercount
+,   b.destinationinlandtransit1lessthanorequalto2dayscontainercount AS communitydestinationinlandtransit1lessthanorequalto2dayscontainercount
+,   b.destinationinlandtransit2lessthanorequalto3dayscontainercount AS communitydestinationinlandtransit2lessthanorequalto3dayscontainercount
+,   b.destinationinlandtransit3lessthanorequalto4dayscontainercount AS communitydestinationinlandtransit3lessthanorequalto4dayscontainercount
+,   b.destinationinlandtransit4lessthanorequalto5dayscontainercount AS communitydestinationinlandtransit4lessthanorequalto5dayscontainercount
+,   b.destinationinlandtransitgreaterthan5dayscontainercount AS communitydestinationinlandtransitgreaterthan5dayscontainercount
+,   b.destinationinlandtransitdayssum AS communitydestinationinlandtransitdayssum
+,   b.positivedestinationinlandtransitdayssum AS communitypositivedestinationinlandtransitdayssum
+,   b.negativedestinationinlandtransitdayssum AS communitynegativedestinationinlandtransitdayssum
+,   b.minpositivedestinationinlandtransitdayssum AS communityminpositivedestinationinlandtransitdayssum
+,   b.maxpositivedestinationinlandtransitdayssum AS communitymaxpositivedestinationinlandtransitdayssum
+,   b.emptyreturncontainercount AS communityemptyreturncontainercount
+,   b.dwelltimeawayfrompodcontainercount AS communitydwelltimeawayfrompodcontainercount
+,   b.positivedwelltimeawayfrompodcontainercount AS communitypositivedwelltimeawayfrompodcontainercount
+,   b.negativedwelltimeawayfrompodcontainercount AS communitynegativedwelltimeawayfrompodcontainercount
+,   b.dwelltimeawayfrompod0lessthanorequalto1dayscontainercount AS communitydwelltimeawayfrompod0lessthanorequalto1dayscontainercount
+,   b.dwelltimeawayfrompod1lessthanorequalto2dayscontainercount AS communitydwelltimeawayfrompod1lessthanorequalto2dayscontainercount
+,   b.dwelltimeawayfrompod2lessthanorequalto3dayscontainercount AS communitydwelltimeawayfrompod2lessthanorequalto3dayscontainercount
+,   b.dwelltimeawayfrompod3lessthanorequalto4dayscontainercount AS communitydwelltimeawayfrompod3lessthanorequalto4dayscontainercount
+,   b.dwelltimeawayfrompod4lessthanorequalto5dayscontainercount AS communitydwelltimeawayfrompod4lessthanorequalto5dayscontainercount
+,   b.dwelltimeawayfrompod5lessthanorequalto6dayscontainercount AS communitydwelltimeawayfrompod5lessthanorequalto6dayscontainercount
+,   b.dwelltimeawayfrompod6lessthanorequalto7dayscontainercount AS communitydwelltimeawayfrompod6lessthanorequalto7dayscontainercount
+,   b.dwelltimeawayfrompod7lessthanorequalto8dayscontainercount AS communitydwelltimeawayfrompod7lessthanorequalto8dayscontainercount
+,   b.dwelltimeawayfrompodgreaterthan8dayscontainercount AS communitydwelltimeawayfrompodgreaterthan8dayscontainercount
+,   b.dwelltimeawayfrompoddayssum AS communitydwelltimeawayfrompoddayssum
+,   b.positivedwelltimeawayfrompoddayssum AS communitypositivedwelltimeawayfrompoddayssum
+,   b.negativedwelltimeawayfrompoddayssum AS communitynegativedwelltimeawayfrompoddayssum
+,   b.minpositivedwelltimeawayfrompoddayssum AS communityminpositivedwelltimeawayfrompoddayssum
+,   b.maxpositivedwelltimeawayfrompoddayssum AS communitymaxpositivedwelltimeawayfrompoddayssum
+,   b.outforstrippingcontainercount AS communityoutforstrippingcontainercount
+,   b.positiveoutforstrippingcontainercount AS communitypositiveoutforstrippingcontainercount
+,   b.negativeoutforstrippingcontainercount AS communitynegativeoutforstrippingcontainercount
+,   b.outforstripping0lessthanorequalto1dayscontainercount AS communityoutforstripping0lessthanorequalto1dayscontainercount
+,   b.outforstripping1lessthanorequalto2dayscontainercount AS communityoutforstripping1lessthanorequalto2dayscontainercount
+,   b.outforstripping2lessthanorequalto3dayscontainercount AS communityoutforstripping2lessthanorequalto3dayscontainercount
+,   b.outforstripping3lessthanorequalto4dayscontainercount AS communityoutforstripping3lessthanorequalto4dayscontainercount
+,   b.outforstripping4lessthanorequalto5dayscontainercount AS communityoutforstripping4lessthanorequalto5dayscontainercount
+,   b.outforstripping5lessthanorequalto6dayscontainercount AS communityoutforstripping5lessthanorequalto6dayscontainercount
+,   b.outforstripping6lessthanorequalto7dayscontainercount AS communityoutforstripping6lessthanorequalto7dayscontainercount
+,   b.outforstripping7lessthanorequalto8dayscontainercount AS communityoutforstripping7lessthanorequalto8dayscontainercount
+,   b.outforstrippinggreaterthan8dayscontainercount AS communityoutforstrippinggreaterthan8dayscontainercount
+,   b.outforstrippingdayssum AS communityoutforstrippingdayssum
+,   b.positiveoutforstrippingdayssum AS communitypositiveoutforstrippingdayssum
+,   b.negativeoutforstrippingdayssum AS communitynegativeoutforstrippingdayssum
+,   b.minpositiveoutforstrippingdayssum AS communityminpositiveoutforstrippingdayssum
+,   b.maxpositiveoutforstrippingdayssum AS communitymaxpositiveoutforstrippingdayssum
+,   b.createdatecontainercount AS communitycreatedatecontainercount
+,   b.firstetdpolcompletenesscontainercount AS communityfirstetdpolcompletenesscontainercount
+,   b.firstetapodcompletenesscontainercount AS communityfirstetapodcompletenesscontainercount
+FROM hv_orc_ocm_benchmark_owner_agg AS a
+    FULL OUTER JOIN hv_orc_ocm_benchmark_no_owner_agg AS b
+    ON a.carrierorgid = b.carrierorgid
+    AND a.podcityid = b.podcityid
+    AND a.polcityid = b.polcityid
+    AND a.transshipcityid = b.transshipcityid
+    AND a.containertypecluster = b.containertypecluster
+    AND a.movetypecluster = b.movetypecluster
+    AND a.originmovetypecluster = b.originmovetypecluster
+    AND a.destinationmovetypecluster = b.destinationmovetypecluster
+    AND a.datedimid = b.datedimid
+;
+
+CREATE TABLE IF NOT EXISTS hv_orc_ocm_benchmark_combined_agg_hash_temp (
+    carrierorgid int
+,   carriername string
+,   carriercluster string
+,   ownerorgid int
+,   ownerorgname string
+,   lanecityname string
+,   lanecitysubdivision string
+,   lanecitycluster1 string
+,   lanecitycluster2 string
+,   lanecountryname string
+,   laneregion1 string
+,   laneregion2 string
+,   polcityid int
+,   polcityname string
+,   polcityunlocode string
+,   polcitylongitude string
+,   polcitylatitude string
+,   polcitysubdivision string
+,   polcitycluster1 string
+,   polcitycluster2 string
+,   polcountryid int
+,   polcountryname string
+,   polregion1 string
+,   polregion2 string
+,   podcityid int
+,   podcityname string
+,   podcityunlocode string
+,   podcitylongitude string
+,   podcitylatitude string
+,   podcitysubdivision string
+,   podcitycluster1 string
+,   podcitycluster2 string
+,   podcountryid int
+,   podcountryname string
+,   podregion1 string
+,   podregion2 string
+,   transshipcityid int
+,   transshipcityname string
+,   transshipcityunlocode string
+,   transshipcitylongitude string
+,   transshipcitylatitude string
+,   transshipcitysubdivision string
+,   transshipcitycluster1 string
+,   transshipcitycluster2 string
+,   transshipcountryid int
+,   transshipcountryname string
+,   transshipregion1 string
+,   transshipregion2 string
+,   transshipcityflag int
+,   containertypecluster string
+,   movetypecluster string
+,   originmovetypecluster string
+,   originmovetypeclusterflag int
+,   destinationmovetypecluster string
+,   destinationmovetypeclusterflag int
+,   datedimid int
+,   weekenddate string
+,   year int
+,   quarter int
+,   yearquarter int
+,   month int
+,   yearmonth int
+,   week int
+,   owneremptyoutgatecontainercount bigint
+,   owneroutforstuffingcontainercount bigint
+,   ownerpositiveoutforstuffingcontainercount bigint
+,   ownernegativeoutforstuffingcontainercount bigint
+,   owneroutforstuffing0lessthanorequalto1dayscontainercount bigint
+,   owneroutforstuffing1lessthanorequalto2dayscontainercount bigint
+,   owneroutforstuffing2lessthanorequalto3dayscontainercount bigint
+,   owneroutforstuffing3lessthanorequalto4dayscontainercount bigint
+,   owneroutforstuffing4lessthanorequalto5dayscontainercount bigint
+,   owneroutforstuffing5lessthanorequalto6dayscontainercount bigint
+,   owneroutforstuffing6lessthanorequalto7dayscontainercount bigint
+,   owneroutforstuffing7lessthanorequalto8dayscontainercount bigint
+,   owneroutforstuffinggreaterthan8dayscontainercount bigint
+,   owneroutforstuffingdayssum double
+,   ownerpositiveoutforstuffingdayssum double
+,   ownernegativeoutforstuffingdayssum double
+,   ownerminpositiveoutforstuffingdays double
+,   ownermaxpositiveoutforstuffingdays double
+,   owneryardincontainercount bigint
+,   ownerdwelltimeawayfrompolcontainercount bigint
+,   ownerpositivedwelltimeawayfrompolcontainercount bigint
+,   ownernegativedwelltimeawayfrompolcontainercount bigint
+,   ownerdwelltimeawayfrompol0lessthanorequalto1dayscontainercount bigint
+,   ownerdwelltimeawayfrompol1lessthanorequalto2dayscontainercount bigint
+,   ownerdwelltimeawayfrompol2lessthanorequalto3dayscontainercount bigint
+,   ownerdwelltimeawayfrompol3lessthanorequalto4dayscontainercount bigint
+,   ownerdwelltimeawayfrompol4lessthanorequalto5dayscontainercount bigint
+,   ownerdwelltimeawayfrompol5lessthanorequalto6dayscontainercount bigint
+,   ownerdwelltimeawayfrompol6lessthanorequalto7dayscontainercount bigint
+,   ownerdwelltimeawayfrompol7lessthanorequalto8dayscontainercount bigint
+,   ownerdwelltimeawayfrompolgreaterthan8dayscontainercount bigint
+,   ownerdwelltimeawayfrompoldayssum double
+,   ownerpositivedwelltimeawayfrompoldayssum double
+,   ownernegativedwelltimeawayfrompoldayssum double
+,   ownerminpositivedwelltimeawayfrompoldays double
+,   ownermaxpositivedwelltimeawayfrompoldays double
+,   ownerorigininlandtransitcontainercount bigint
+,   ownerpositiveorigininlandtransitcontainercount bigint
+,   ownernegativeorigininlandtransitcontainercount bigint
+,   ownerorigininlandtransit0lessthanorequalto1dayscontainercount bigint
+,   ownerorigininlandtransit1lessthanorequalto2dayscontainercount bigint
+,   ownerorigininlandtransit2lessthanorequalto3dayscontainercount bigint
+,   ownerorigininlandtransit3lessthanorequalto4dayscontainercount bigint
+,   ownerorigininlandtransit4lessthanorequalto5dayscontainercount bigint
+,   ownerorigininlandtransitgreaterthan5dayscontainercount bigint
+,   ownerorigininlandtransitdayssum double
+,   ownerpositiveorigininlandtransitdayssum double
+,   ownernegativeorigininlandtransitdayssum double
+,   ownerminpositiveorigininlandtransitdays double
+,   ownermaxpositiveorigininlandtransitdays double
+,   owneronboardcontainercount bigint
+,   ownerdwelltimeatpolcontainercount bigint
+,   ownerpositivedwelltimeatpolcontainercount bigint
+,   ownernegativedwelltimeatpolcontainercount bigint
+,   ownerdwelltimeatpoldayssum double
+,   ownerpositivedwelltimeatpoldayssum double
+,   ownernegativedwelltimeatpoldayssum double
+,   ownerminpositivedwelltimeatpoldays double
+,   ownermaxpositivedwelltimeatpoldays double
+,   ownerbookedetdpolcontainercount bigint
+,   ownerbtdpolcontainercount bigint
+,   ownerpollatenesscontainercount bigint
+,   ownerotdperformancecontainercount bigint
+,   ownerpositivepollatenesscontainercount bigint
+,   ownernegativepollatenesscontainercount bigint
+,   ownerotdperformancegreaterthan8daysearly bigint
+,   ownerotdperformance7lessthanorequalto8daysearly bigint
+,   ownerotdperformance6lessthanorequalto7daysearly bigint
+,   ownerotdperformance5lessthanorequalto6daysearly bigint
+,   ownerotdperformance4lessthanorequalto5daysearly bigint
+,   ownerotdperformance3lessthanorequalto4daysearly bigint
+,   ownerotdperformance2lessthanorequalto3daysearly bigint
+,   ownerotdperformance1lessthanorequalto2daysearly bigint
+,   ownerotdperformance0lessthanorequalto1daysearly bigint
+,   ownerotdperformance0lessthanorequalto1dayslate bigint
+,   ownerotdperformance1lessthanorequalto2dayslate bigint
+,   ownerotdperformance2lessthanorequalto3dayslate bigint
+,   ownerotdperformance3lessthanorequalto4dayslate bigint
+,   ownerotdperformance4lessthanorequalto5dayslate bigint
+,   ownerotdperformancegreaterthan5dayslate bigint
+,   ownerotdperformance5lessthanorequalto6dayslate bigint
+,   ownerotdperformance6lessthanorequalto7dayslate bigint
+,   ownerotdperformance7lessthanorequalto8dayslate bigint
+,   ownerotdperformancegreaterthan8dayslate bigint
+,   ownerpollatenessdayssum double
+,   ownerpositivepollatenessdayssum double
+,   ownernegativepollatenessdayssum double
+,   ownerarrivedattransshipmentcompletenesscontainercount bigint
+,   ownerbookedetdpolcompletenesscontainercount bigint
+,   ownerdepartedfrompolcompletenesscontainercount bigint
+,   ownerdepartedfromtransshipmentcompletenesscontainercount bigint
+,   owneremptyoutgatecompletenesscontainercount bigint
+,   owneremptyoutfrominlandcompletenesscontainercount bigint
+,   owneremptyoutfromportcompletenesscontainercount bigint
+,   owneretdpolcompletenesscontainercount bigint
+,   ownerfulloutgatefrompolcompletenesscontainercount bigint
+,   owneronboardcompletenesscontainercount bigint
+,   owneryardincompletenesscontainercount bigint
+,   ownerspeedkmshr double
+,   ownerteusum double
+,   ownerteuatpolsum double
+,   ownercontainertransittimesum double
+,   ownercontainertransittimecount bigint
+,   ownervesseltransittimesum double
+,   ownervesseltransittimecount bigint
+,   ownerotdperformancesum double
+,   ownerotdperformancecount bigint
+,   ownerotaperformancesum double
+,   ownerotaperformancecount bigint
+,   ownerpollatenesssum double
+,   ownerpollatenesscount bigint
+,   ownerpodlatenesssum double
+,   ownerpodlatenesscount bigint
+,   ownerspeeddistancekms double
+,   ownerspeedtimehr double
+,   ownertotaltimeatpolsum double
+,   ownertotaltimeatpolcount bigint
+,   ownertotaltimeatpodsum double
+,   ownertotaltimeatpodcount bigint
+,   ownerteuranksum double
+,   ownerteurankcount bigint
+,   ownerteuatpolranksum double
+,   ownerteuatpolrankcount bigint
+,   ownerteuatpodranksum double
+,   ownerteuatpodrankcount bigint
+,   ownerdepartedfrompolcontainercount bigint
+,   ownertotaltimeatpolcontainercount bigint
+,   ownerpositivetotaltimeatpolcontainercount bigint
+,   ownernegativetotaltimeatpolcontainercount bigint
+,   ownertotaltimeatpol0lessthanorequalto1dayscontainercount bigint
+,   ownertotaltimeatpol1lessthanorequalto2dayscontainercount bigint
+,   ownertotaltimeatpol2lessthanorequalto3dayscontainercount bigint
+,   ownertotaltimeatpol3lessthanorequalto4dayscontainercount bigint
+,   ownertotaltimeatpol4lessthanorequalto5dayscontainercount bigint
+,   ownertotaltimeatpol5lessthanorequalto6dayscontainercount bigint
+,   ownertotaltimeatpol6lessthanorequalto7dayscontainercount bigint
+,   ownertotaltimeatpol7lessthanorequalto8dayscontainercount bigint
+,   ownertotaltimeatpolgreaterthan8dayscontainercount bigint
+,   ownertotaltimeatpoldayssum double
+,   ownerpositivetotaltimeatpoldayssum double
+,   ownernegativetotaltimeatpoldayssum double
+,   ownerminpositivetotaltimeatpoldayssum double
+,   ownermaxpositivetotaltimeatpoldayssum double
+,   ownerarrivedattransshipmentcontainercount bigint
+,   ownerdepartedfromtransshipmentcontainercount bigint
+,   ownerdwelltimeattransshipmentportcontainercount bigint
+,   ownerpositivedwelltimeattransshipmentportcontainercount bigint
+,   ownernegativedwelltimeattransshipmentportcontainercount bigint
+,   ownerdwelltimeattransshipmentport0lessthanorequalto1dayscontainercount bigint
+,   ownerdwelltimeattransshipmentport1lessthanorequalto2dayscontainercount bigint
+,   ownerdwelltimeattransshipmentport2lessthanorequalto3dayscontainercount bigint
+,   ownerdwelltimeattransshipmentport3lessthanorequalto4dayscontainercount bigint
+,   ownerdwelltimeattransshipmentport4lessthanorequalto5dayscontainercount bigint
+,   ownerdwelltimeattransshipmentportgreaterthan5dayscontainercount bigint
+,   ownerdwelltimeattransshipmentportdayssum double
+,   ownerpositivedwelltimeattransshipmentportdayssum double
+,   ownernegativedwelltimeattransshipmentportdayssum double
+,   ownerminpositivedwelltimeattransshipmentportdayssum double
+,   ownermaxpositivedwelltimeattransshipmentportdayssum double
+,   ownerbtapodcontainercount bigint
+,   ownerpodlatenesscontainercount bigint
+,   ownerotaperformancecontainercount bigint
+,   ownerpositivepodlatenesscontainercount bigint
+,   ownernegativepodlatenesscontainercount bigint
+,   ownerotaperformancegreaterthan8daysearly bigint
+,   ownerotaperformance7lessthanorequalto8daysearly bigint
+,   ownerotaperformance6lessthanorequalto7daysearly bigint
+,   ownerotaperformance5lessthanorequalto6daysearly bigint
+,   ownerotaperformance4lessthanorequalto5daysearly bigint
+,   ownerotaperformance3lessthanorequalto4daysearly bigint
+,   ownerotaperformance2lessthanorequalto3daysearly bigint
+,   ownerotaperformance1lessthanorequalto2daysearly bigint
+,   ownerotaperformance0lessthanorequalto1daysearly bigint
+,   ownerotaperformance0lessthanorequalto1dayslate bigint
+,   ownerotaperformance1lessthanorequalto2dayslate bigint
+,   ownerotaperformance2lessthanorequalto3dayslate bigint
+,   ownerotaperformance3lessthanorequalto4dayslate bigint
+,   ownerotaperformance4lessthanorequalto5dayslate bigint
+,   ownerotaperformancegreaterthan5dayslate bigint
+,   ownerotaperformance5lessthanorequalto6dayslate bigint
+,   ownerotaperformance6lessthanorequalto7dayslate bigint
+,   ownerotaperformance7lessthanorequalto8dayslate bigint
+,   ownerotaperformancegreaterthan8dayslate bigint
+,   ownerpodlatenessdayssum double
+,   ownerpositivepodlatenessdayssum double
+,   ownernegativepodlatenessdayssum double
+,   ownerarrivedatpodcompletenesscontainercount bigint
+,   ownerbookedetapodcompletenesscontainercount bigint
+,   ownercustomsreleasecompletenesscontainercount bigint
+,   owneremptyreturncompletenesscontainercount bigint
+,   owneretapodcompletenesscontainercount bigint
+,   ownerfullcontainerdischargedatpodcompletenesscontainercount bigint
+,   owneryardoutcompletenesscontainercount bigint
+,   ownerteuatpodsum double
+,   ownerbookedetapodcontainercount bigint
+,   ownerarrivedatpodcontainercount bigint
+,   ownervesseltransittimecontainercount bigint
+,   ownervesseltransittimeperformancecontainercount bigint
+,   ownerpositivevesseltransittimecontainercount bigint
+,   ownernegativevesseltransittimecontainercount bigint
+,   ownervesseltransittime0lessthanorequalto5dayscontainercount bigint
+,   ownervesseltransittime5lessthanorequalto10dayscontainercount bigint
+,   ownervesseltransittime10lessthanorequalto15dayscontainercount bigint
+,   ownervesseltransittime15lessthanorequalto20dayscontainercount bigint
+,   ownervesseltransittime20lessthanorequalto25dayscontainercount bigint
+,   ownervesseltransittime25lessthanorequalto30dayscontainercount bigint
+,   ownervesseltransittime30lessthanorequalto35dayscontainercount bigint
+,   ownervesseltransittime35lessthanorequalto40dayscontainercount bigint
+,   ownervesseltransittimegreaterthan40dayscontainercount bigint
+,   ownerpositivevesseltransittimedayssum double
+,   ownernegativevesseltransittimedayssum double
+,   ownerminpositivevesseltransittimedayssum double
+,   ownermaxpositivevesseltransittimedayssum double
+,   ownervesselperformancegreaterthan10daysearlycontainercount bigint
+,   ownervesselperformance9lessthanorequalto10daysearlycontainercount bigint
+,   ownervesselperformance8lessthanorequalto9daysearlycontainercount bigint
+,   ownervesselperformance7lessthanorequalto8daysearlycontainercount bigint
+,   ownervesselperformance6lessthanorequalto7daysearlycontainercount bigint
+,   ownervesselperformance5lessthanorequalto6daysearlycontainercount bigint
+,   ownervesselperformance4lessthanorequalto5daysearlycontainercount bigint
+,   ownervesselperformance3lessthanorequalto4daysearlycontainercount bigint
+,   ownervesselperformance2lessthanorequalto3daysearlycontainercount bigint
+,   ownervesselperformance1lessthanorequalto2daysearlycontainercount bigint
+,   ownervesselperformance0lessthanorequalto1daysearlycontainercount bigint
+,   ownervesselperformance0lessthanorequalto1dayslatecontainercount bigint
+,   ownervesselperformance1lessthanorequalto2dayslatecontainercount bigint
+,   ownervesselperformance2lessthanorequalto3dayslatecontainercount bigint
+,   ownervesselperformance3lessthanorequalto4dayslatecontainercount bigint
+,   ownervesselperformance4lessthanorequalto5dayslatecontainercount bigint
+,   ownervesselperformance5lessthanorequalto6dayslatecontainercount bigint
+,   ownervesselperformance6lessthanorequalto7dayslatecontainercount bigint
+,   ownervesselperformance7lessthanorequalto8dayslatecontainercount bigint
+,   ownervesselperformance8lessthanorequalto9dayslatecontainercount bigint
+,   ownervesselperformance9lessthanorequalto10dayslatecontainercount bigint
+,   ownervesselperformancegreaterthan10dayslatecontainercount bigint
+,   ownercustomsreleasecontainercount bigint
+,   ownercustomsreleasetimecontainercount bigint
+,   ownerpositivecustomsreleasetimecontainercount bigint
+,   ownernegativecustomsreleasetimecontainercount bigint
+,   ownercustomsreleasetime0lessthanorequalto1dayscontainercount bigint
+,   ownercustomsreleasetime1lessthanorequalto2dayscontainercount bigint
+,   ownercustomsreleasetime2lessthanorequalto3dayscontainercount bigint
+,   ownercustomsreleasetime3lessthanorequalto4dayscontainercount bigint
+,   ownercustomsreleasetime4lessthanorequalto5dayscontainercount bigint
+,   ownercustomsreleasetime5lessthanorequalto6dayscontainercount bigint
+,   ownercustomsreleasetime6lessthanorequalto7dayscontainercount bigint
+,   ownercustomsreleasetime7lessthanorequalto8dayscontainercount bigint
+,   ownercustomsreleasetimegreaterthan8dayscontainercount bigint
+,   ownercustomsreleasetimedayssum double
+,   ownerpositivecustomsreleasetimedayssum double
+,   ownernegativecustomsreleasetimedayssum double
+,   ownerminpositivecustomsreleasetimedayssum double
+,   ownermaxpositivecustomsreleasetimedayssum double
+,   ownerfullcontainerdischargedatpodcontainercount bigint
+,   owneryardoutcontainercount bigint
+,   ownercontainertransittimecontainercount bigint
+,   ownerpositivecontainertransittimecontainercount bigint
+,   ownernegativecontainertransittimecontainercount bigint
+,   ownercontainertransittime0lessthanorequalto5dayscontainercount bigint
+,   ownercontainertransittime5lessthanorequalto10dayscontainercount bigint
+,   ownercontainertransittime10lessthanorequalto15dayscontainercount bigint
+,   ownercontainertransittime15lessthanorequalto20dayscontainercount bigint
+,   ownercontainertransittime20lessthanorequalto25dayscontainercount bigint
+,   ownercontainertransittime25lessthanorequalto30dayscontainercount bigint
+,   ownercontainertransittime30lessthanorequalto35dayscontainercount bigint
+,   ownercontainertransittime35lessthanorequalto40dayscontainercount bigint
+,   ownercontainertransittimegreaterthan40dayscontainercount bigint
+,   ownercontainertransittimedayssum double
+,   ownerpositivecontainertransittimedayssum double
+,   ownernegativecontainertransittimedayssum double
+,   ownerminpositivecontainertransittimedayssum double
+,   ownermaxpositivecontainertransittimedayssum double
+,   ownerdwelltimeatpodcontainercount bigint
+,   ownerpositivedwelltimeatpodcontainercount bigint
+,   ownernegativedwelltimeatpodcontainercount bigint
+,   ownerdwelltimeatpod0lessthanorequalto1dayscontainercount bigint
+,   ownerdwelltimeatpod1lessthanorequalto2dayscontainercount bigint
+,   ownerdwelltimeatpod2lessthanorequalto3dayscontainercount bigint
+,   ownerdwelltimeatpod3lessthanorequalto4dayscontainercount bigint
+,   ownerdwelltimeatpod4lessthanorequalto5dayscontainercount bigint
+,   ownerdwelltimeatpod5lessthanorequalto6dayscontainercount bigint
+,   ownerdwelltimeatpod6lessthanorequalto7dayscontainercount bigint
+,   ownerdwelltimeatpod7lessthanorequalto8dayscontainercount bigint
+,   ownerdwelltimeatpodgreaterthan8dayscontainercount bigint
+,   ownerdwelltimeatpoddayssum double
+,   ownerpositivedwelltimeatpoddayssum double
+,   ownernegativedwelltimeatpoddayssum double
+,   ownerminpositivedwelltimeatpoddayssum double
+,   ownermaxpositivedwelltimeatpoddayssum double
+,   ownertotaltimeatpodcontainercount bigint
+,   ownerpositivetotaltimeatpodcontainercount bigint
+,   ownernegativetotaltimeatpodcontainercount bigint
+,   ownertotaltimeatpod0lessthanorequalto1dayscontainercount bigint
+,   ownertotaltimeatpod1lessthanorequalto2dayscontainercount bigint
+,   ownertotaltimeatpod2lessthanorequalto3dayscontainercount bigint
+,   ownertotaltimeatpod3lessthanorequalto4dayscontainercount bigint
+,   ownertotaltimeatpod4lessthanorequalto5dayscontainercount bigint
+,   ownertotaltimeatpod5lessthanorequalto6dayscontainercount bigint
+,   ownertotaltimeatpod6lessthanorequalto7dayscontainercount bigint
+,   ownertotaltimeatpod7lessthanorequalto8dayscontainercount bigint
+,   ownertotaltimeatpodgreaterthan8dayscontainercount bigint
+,   ownertotaltimeatpoddayssum double
+,   ownerpositivetotaltimeatpoddayssum double
+,   ownernegativetotaltimeatpoddayssum double
+,   ownerminpositivetotaltimeatpoddayssum double
+,   ownermaxpositivetotaltimeatpoddayssum double
+,   ownerfulloutgatefrompolcontainercount bigint
+,   ownerfullcontainerdeliveryattrcontainercount bigint
+,   ownerdestinationinlandtransitcontainercount bigint
+,   ownerpositivedestinationinlandtransitcontainercount bigint
+,   ownernegativedestinationinlandtransitcontainercount bigint
+,   ownerdestinationinlandtransit0lessthanorequalto1dayscontainercount bigint
+,   ownerdestinationinlandtransit1lessthanorequalto2dayscontainercount bigint
+,   ownerdestinationinlandtransit2lessthanorequalto3dayscontainercount bigint
+,   ownerdestinationinlandtransit3lessthanorequalto4dayscontainercount bigint
+,   ownerdestinationinlandtransit4lessthanorequalto5dayscontainercount bigint
+,   ownerdestinationinlandtransitgreaterthan5dayscontainercount bigint
+,   ownerdestinationinlandtransitdayssum double
+,   ownerpositivedestinationinlandtransitdayssum double
+,   ownernegativedestinationinlandtransitdayssum double
+,   ownerminpositivedestinationinlandtransitdayssum double
+,   ownermaxpositivedestinationinlandtransitdayssum double
+,   owneremptyreturncontainercount bigint
+,   ownerdwelltimeawayfrompodcontainercount bigint
+,   ownerpositivedwelltimeawayfrompodcontainercount bigint
+,   ownernegativedwelltimeawayfrompodcontainercount bigint
+,   ownerdwelltimeawayfrompod0lessthanorequalto1dayscontainercount bigint
+,   ownerdwelltimeawayfrompod1lessthanorequalto2dayscontainercount bigint
+,   ownerdwelltimeawayfrompod2lessthanorequalto3dayscontainercount bigint
+,   ownerdwelltimeawayfrompod3lessthanorequalto4dayscontainercount bigint
+,   ownerdwelltimeawayfrompod4lessthanorequalto5dayscontainercount bigint
+,   ownerdwelltimeawayfrompod5lessthanorequalto6dayscontainercount bigint
+,   ownerdwelltimeawayfrompod6lessthanorequalto7dayscontainercount bigint
+,   ownerdwelltimeawayfrompod7lessthanorequalto8dayscontainercount bigint
+,   ownerdwelltimeawayfrompodgreaterthan8dayscontainercount bigint
+,   ownerdwelltimeawayfrompoddayssum double
+,   ownerpositivedwelltimeawayfrompoddayssum double
+,   ownernegativedwelltimeawayfrompoddayssum double
+,   ownerminpositivedwelltimeawayfrompoddayssum double
+,   ownermaxpositivedwelltimeawayfrompoddayssum double
+,   owneroutforstrippingcontainercount bigint
+,   ownerpositiveoutforstrippingcontainercount bigint
+,   ownernegativeoutforstrippingcontainercount bigint
+,   owneroutforstripping0lessthanorequalto1dayscontainercount bigint
+,   owneroutforstripping1lessthanorequalto2dayscontainercount bigint
+,   owneroutforstripping2lessthanorequalto3dayscontainercount bigint
+,   owneroutforstripping3lessthanorequalto4dayscontainercount bigint
+,   owneroutforstripping4lessthanorequalto5dayscontainercount bigint
+,   owneroutforstripping5lessthanorequalto6dayscontainercount bigint
+,   owneroutforstripping6lessthanorequalto7dayscontainercount bigint
+,   owneroutforstripping7lessthanorequalto8dayscontainercount bigint
+,   owneroutforstrippinggreaterthan8dayscontainercount bigint
+,   owneroutforstrippingdayssum double
+,   ownerpositiveoutforstrippingdayssum double
+,   ownernegativeoutforstrippingdayssum double
+,   ownerminpositiveoutforstrippingdayssum double
+,   ownermaxpositiveoutforstrippingdayssum double
+,   ownercreatedatecontainercount bigint
+,   ownerfirstetdpolcompletenesscontainercount bigint
+,   ownerfirstetapodcompletenesscontainercount bigint
+,   communityemptyoutgatecontainercount bigint
+,   communityoutforstuffingcontainercount bigint
+,   communitypositiveoutforstuffingcontainercount bigint
+,   communitynegativeoutforstuffingcontainercount bigint
+,   communityoutforstuffing0lessthanorequalto1dayscontainercount bigint
+,   communityoutforstuffing1lessthanorequalto2dayscontainercount bigint
+,   communityoutforstuffing2lessthanorequalto3dayscontainercount bigint
+,   communityoutforstuffing3lessthanorequalto4dayscontainercount bigint
+,   communityoutforstuffing4lessthanorequalto5dayscontainercount bigint
+,   communityoutforstuffing5lessthanorequalto6dayscontainercount bigint
+,   communityoutforstuffing6lessthanorequalto7dayscontainercount bigint
+,   communityoutforstuffing7lessthanorequalto8dayscontainercount bigint
+,   communityoutforstuffinggreaterthan8dayscontainercount bigint
+,   communityoutforstuffingdayssum double
+,   communitypositiveoutforstuffingdayssum double
+,   communitynegativeoutforstuffingdayssum double
+,   communityminpositiveoutforstuffingdays double
+,   communitymaxpositiveoutforstuffingdays double
+,   communityyardincontainercount bigint
+,   communitydwelltimeawayfrompolcontainercount bigint
+,   communitypositivedwelltimeawayfrompolcontainercount bigint
+,   communitynegativedwelltimeawayfrompolcontainercount bigint
+,   communitydwelltimeawayfrompol0lessthanorequalto1dayscontainercount bigint
+,   communitydwelltimeawayfrompol1lessthanorequalto2dayscontainercount bigint
+,   communitydwelltimeawayfrompol2lessthanorequalto3dayscontainercount bigint
+,   communitydwelltimeawayfrompol3lessthanorequalto4dayscontainercount bigint
+,   communitydwelltimeawayfrompol4lessthanorequalto5dayscontainercount bigint
+,   communitydwelltimeawayfrompol5lessthanorequalto6dayscontainercount bigint
+,   communitydwelltimeawayfrompol6lessthanorequalto7dayscontainercount bigint
+,   communitydwelltimeawayfrompol7lessthanorequalto8dayscontainercount bigint
+,   communitydwelltimeawayfrompolgreaterthan8dayscontainercount bigint
+,   communitydwelltimeawayfrompoldayssum double
+,   communitypositivedwelltimeawayfrompoldayssum double
+,   communitynegativedwelltimeawayfrompoldayssum double
+,   communityminpositivedwelltimeawayfrompoldays double
+,   communitymaxpositivedwelltimeawayfrompoldays double
+,   communityorigininlandtransitcontainercount bigint
+,   communitypositiveorigininlandtransitcontainercount bigint
+,   communitynegativeorigininlandtransitcontainercount bigint
+,   communityorigininlandtransit0lessthanorequalto1dayscontainercount bigint
+,   communityorigininlandtransit1lessthanorequalto2dayscontainercount bigint
+,   communityorigininlandtransit2lessthanorequalto3dayscontainercount bigint
+,   communityorigininlandtransit3lessthanorequalto4dayscontainercount bigint
+,   communityorigininlandtransit4lessthanorequalto5dayscontainercount bigint
+,   communityorigininlandtransitgreaterthan5dayscontainercount bigint
+,   communityorigininlandtransitdayssum double
+,   communitypositiveorigininlandtransitdayssum double
+,   communitynegativeorigininlandtransitdayssum double
+,   communityminpositiveorigininlandtransitdays double
+,   communitymaxpositiveorigininlandtransitdays double
+,   communityonboardcontainercount bigint
+,   communitydwelltimeatpolcontainercount bigint
+,   communitypositivedwelltimeatpolcontainercount bigint
+,   communitynegativedwelltimeatpolcontainercount bigint
+,   communitydwelltimeatpoldayssum double
+,   communitypositivedwelltimeatpoldayssum double
+,   communitynegativedwelltimeatpoldayssum double
+,   communityminpositivedwelltimeatpoldays double
+,   communitymaxpositivedwelltimeatpoldays double
+,   communitybookedetdpolcontainercount bigint
+,   communitybtdpolcontainercount bigint
+,   communitypollatenesscontainercount bigint
+,   communityotdperformancecontainercount bigint
+,   communitypositivepollatenesscontainercount bigint
+,   communitynegativepollatenesscontainercount bigint
+,   communityotdperformancegreaterthan8daysearly bigint
+,   communityotdperformance7lessthanorequalto8daysearly bigint
+,   communityotdperformance6lessthanorequalto7daysearly bigint
+,   communityotdperformance5lessthanorequalto6daysearly bigint
+,   communityotdperformance4lessthanorequalto5daysearly bigint
+,   communityotdperformance3lessthanorequalto4daysearly bigint
+,   communityotdperformance2lessthanorequalto3daysearly bigint
+,   communityotdperformance1lessthanorequalto2daysearly bigint
+,   communityotdperformance0lessthanorequalto1daysearly bigint
+,   communityotdperformance0lessthanorequalto1dayslate bigint
+,   communityotdperformance1lessthanorequalto2dayslate bigint
+,   communityotdperformance2lessthanorequalto3dayslate bigint
+,   communityotdperformance3lessthanorequalto4dayslate bigint
+,   communityotdperformance4lessthanorequalto5dayslate bigint
+,   communityotdperformancegreaterthan5dayslate bigint
+,   communityotdperformance5lessthanorequalto6dayslate bigint
+,   communityotdperformance6lessthanorequalto7dayslate bigint
+,   communityotdperformance7lessthanorequalto8dayslate bigint
+,   communityotdperformancegreaterthan8dayslate bigint
+,   communitypollatenessdayssum double
+,   communitypositivepollatenessdayssum double
+,   communitynegativepollatenessdayssum double
+,   communityarrivedattransshipmentcompletenesscontainercount bigint
+,   communitybookedetdpolcompletenesscontainercount bigint
+,   communitydepartedfrompolcompletenesscontainercount bigint
+,   communitydepartedfromtransshipmentcompletenesscontainercount bigint
+,   communityemptyoutgatecompletenesscontainercount bigint
+,   communityemptyoutfrominlandcompletenesscontainercount bigint
+,   communityemptyoutfromportcompletenesscontainercount bigint
+,   communityetdpolcompletenesscontainercount bigint
+,   communityfulloutgatefrompolcompletenesscontainercount bigint
+,   communityonboardcompletenesscontainercount bigint
+,   communityyardincompletenesscontainercount bigint
+,   communityspeedkmshr double
+,   communityteusum double
+,   communityteuatpolsum double
+,   communitycontainertransittimesum double
+,   communitycontainertransittimecount bigint
+,   communityvesseltransittimesum double
+,   communityvesseltransittimecount bigint
+,   communityotdperformancesum double
+,   communityotdperformancecount bigint
+,   communityotaperformancesum double
+,   communityotaperformancecount bigint
+,   communitypollatenesssum double
+,   communitypollatenesscount bigint
+,   communitypodlatenesssum double
+,   communitypodlatenesscount bigint
+,   communityspeeddistancekms double
+,   communityspeedtimehr double
+,   communitytotaltimeatpolsum double
+,   communitytotaltimeatpolcount bigint
+,   communitytotaltimeatpodsum double
+,   communitytotaltimeatpodcount bigint
+,   communityteuranksum double
+,   communityteurankcount bigint
+,   communityteuatpolranksum double
+,   communityteuatpolrankcount bigint
+,   communityteuatpodranksum double
+,   communityteuatpodrankcount bigint
+,   communitydepartedfrompolcontainercount bigint
+,   communitytotaltimeatpolcontainercount bigint
+,   communitypositivetotaltimeatpolcontainercount bigint
+,   communitynegativetotaltimeatpolcontainercount bigint
+,   communitytotaltimeatpol0lessthanorequalto1dayscontainercount bigint
+,   communitytotaltimeatpol1lessthanorequalto2dayscontainercount bigint
+,   communitytotaltimeatpol2lessthanorequalto3dayscontainercount bigint
+,   communitytotaltimeatpol3lessthanorequalto4dayscontainercount bigint
+,   communitytotaltimeatpol4lessthanorequalto5dayscontainercount bigint
+,   communitytotaltimeatpol5lessthanorequalto6dayscontainercount bigint
+,   communitytotaltimeatpol6lessthanorequalto7dayscontainercount bigint
+,   communitytotaltimeatpol7lessthanorequalto8dayscontainercount bigint
+,   communitytotaltimeatpolgreaterthan8dayscontainercount bigint
+,   communitytotaltimeatpoldayssum double
+,   communitypositivetotaltimeatpoldayssum double
+,   communitynegativetotaltimeatpoldayssum double
+,   communityminpositivetotaltimeatpoldayssum double
+,   communitymaxpositivetotaltimeatpoldayssum double
+,   communityarrivedattransshipmentcontainercount bigint
+,   communitydepartedfromtransshipmentcontainercount bigint
+,   communitydwelltimeattransshipmentportcontainercount bigint
+,   communitypositivedwelltimeattransshipmentportcontainercount bigint
+,   communitynegativedwelltimeattransshipmentportcontainercount bigint
+,   communitydwelltimeattransshipmentport0lessthanorequalto1dayscontainercount bigint
+,   communitydwelltimeattransshipmentport1lessthanorequalto2dayscontainercount bigint
+,   communitydwelltimeattransshipmentport2lessthanorequalto3dayscontainercount bigint
+,   communitydwelltimeattransshipmentport3lessthanorequalto4dayscontainercount bigint
+,   communitydwelltimeattransshipmentport4lessthanorequalto5dayscontainercount bigint
+,   communitydwelltimeattransshipmentportgreaterthan5dayscontainercount bigint
+,   communitydwelltimeattransshipmentportdayssum double
+,   communitypositivedwelltimeattransshipmentportdayssum double
+,   communitynegativedwelltimeattransshipmentportdayssum double
+,   communityminpositivedwelltimeattransshipmentportdayssum double
+,   communitymaxpositivedwelltimeattransshipmentportdayssum double
+,   communitybtapodcontainercount bigint
+,   communitypodlatenesscontainercount bigint
+,   communityotaperformancecontainercount bigint
+,   communitypositivepodlatenesscontainercount bigint
+,   communitynegativepodlatenesscontainercount bigint
+,   communityotaperformancegreaterthan8daysearly bigint
+,   communityotaperformance7lessthanorequalto8daysearly bigint
+,   communityotaperformance6lessthanorequalto7daysearly bigint
+,   communityotaperformance5lessthanorequalto6daysearly bigint
+,   communityotaperformance4lessthanorequalto5daysearly bigint
+,   communityotaperformance3lessthanorequalto4daysearly bigint
+,   communityotaperformance2lessthanorequalto3daysearly bigint
+,   communityotaperformance1lessthanorequalto2daysearly bigint
+,   communityotaperformance0lessthanorequalto1daysearly bigint
+,   communityotaperformance0lessthanorequalto1dayslate bigint
+,   communityotaperformance1lessthanorequalto2dayslate bigint
+,   communityotaperformance2lessthanorequalto3dayslate bigint
+,   communityotaperformance3lessthanorequalto4dayslate bigint
+,   communityotaperformance4lessthanorequalto5dayslate bigint
+,   communityotaperformancegreaterthan5dayslate bigint
+,   communityotaperformance5lessthanorequalto6dayslate bigint
+,   communityotaperformance6lessthanorequalto7dayslate bigint
+,   communityotaperformance7lessthanorequalto8dayslate bigint
+,   communityotaperformancegreaterthan8dayslate bigint
+,   communitypodlatenessdayssum double
+,   communitypositivepodlatenessdayssum double
+,   communitynegativepodlatenessdayssum double
+,   communityarrivedatpodcompletenesscontainercount bigint
+,   communitybookedetapodcompletenesscontainercount bigint
+,   communitycustomsreleasecompletenesscontainercount bigint
+,   communityemptyreturncompletenesscontainercount bigint
+,   communityetapodcompletenesscontainercount bigint
+,   communityfullcontainerdischargedatpodcompletenesscontainercount bigint
+,   communityyardoutcompletenesscontainercount bigint
+,   communityteuatpodsum double
+,   communitybookedetapodcontainercount bigint
+,   communityarrivedatpodcontainercount bigint
+,   communityvesseltransittimecontainercount bigint
+,   communityvesseltransittimeperformancecontainercount bigint
+,   communitypositivevesseltransittimecontainercount bigint
+,   communitynegativevesseltransittimecontainercount bigint
+,   communityvesseltransittime0lessthanorequalto5dayscontainercount bigint
+,   communityvesseltransittime5lessthanorequalto10dayscontainercount bigint
+,   communityvesseltransittime10lessthanorequalto15dayscontainercount bigint
+,   communityvesseltransittime15lessthanorequalto20dayscontainercount bigint
+,   communityvesseltransittime20lessthanorequalto25dayscontainercount bigint
+,   communityvesseltransittime25lessthanorequalto30dayscontainercount bigint
+,   communityvesseltransittime30lessthanorequalto35dayscontainercount bigint
+,   communityvesseltransittime35lessthanorequalto40dayscontainercount bigint
+,   communityvesseltransittimegreaterthan40dayscontainercount bigint
+,   communitypositivevesseltransittimedayssum double
+,   communitynegativevesseltransittimedayssum double
+,   communityminpositivevesseltransittimedayssum double
+,   communitymaxpositivevesseltransittimedayssum double
+,   communityvesselperformancegreaterthan10daysearlycontainercount bigint
+,   communityvesselperformance9lessthanorequalto10daysearlycontainercount bigint
+,   communityvesselperformance8lessthanorequalto9daysearlycontainercount bigint
+,   communityvesselperformance7lessthanorequalto8daysearlycontainercount bigint
+,   communityvesselperformance6lessthanorequalto7daysearlycontainercount bigint
+,   communityvesselperformance5lessthanorequalto6daysearlycontainercount bigint
+,   communityvesselperformance4lessthanorequalto5daysearlycontainercount bigint
+,   communityvesselperformance3lessthanorequalto4daysearlycontainercount bigint
+,   communityvesselperformance2lessthanorequalto3daysearlycontainercount bigint
+,   communityvesselperformance1lessthanorequalto2daysearlycontainercount bigint
+,   communityvesselperformance0lessthanorequalto1daysearlycontainercount bigint
+,   communityvesselperformance0lessthanorequalto1dayslatecontainercount bigint
+,   communityvesselperformance1lessthanorequalto2dayslatecontainercount bigint
+,   communityvesselperformance2lessthanorequalto3dayslatecontainercount bigint
+,   communityvesselperformance3lessthanorequalto4dayslatecontainercount bigint
+,   communityvesselperformance4lessthanorequalto5dayslatecontainercount bigint
+,   communityvesselperformance5lessthanorequalto6dayslatecontainercount bigint
+,   communityvesselperformance6lessthanorequalto7dayslatecontainercount bigint
+,   communityvesselperformance7lessthanorequalto8dayslatecontainercount bigint
+,   communityvesselperformance8lessthanorequalto9dayslatecontainercount bigint
+,   communityvesselperformance9lessthanorequalto10dayslatecontainercount bigint
+,   communityvesselperformancegreaterthan10dayslatecontainercount bigint
+,   communitycustomsreleasecontainercount bigint
+,   communitycustomsreleasetimecontainercount bigint
+,   communitypositivecustomsreleasetimecontainercount bigint
+,   communitynegativecustomsreleasetimecontainercount bigint
+,   communitycustomsreleasetime0lessthanorequalto1dayscontainercount bigint
+,   communitycustomsreleasetime1lessthanorequalto2dayscontainercount bigint
+,   communitycustomsreleasetime2lessthanorequalto3dayscontainercount bigint
+,   communitycustomsreleasetime3lessthanorequalto4dayscontainercount bigint
+,   communitycustomsreleasetime4lessthanorequalto5dayscontainercount bigint
+,   communitycustomsreleasetime5lessthanorequalto6dayscontainercount bigint
+,   communitycustomsreleasetime6lessthanorequalto7dayscontainercount bigint
+,   communitycustomsreleasetime7lessthanorequalto8dayscontainercount bigint
+,   communitycustomsreleasetimegreaterthan8dayscontainercount bigint
+,   communitycustomsreleasetimedayssum double
+,   communitypositivecustomsreleasetimedayssum double
+,   communitynegativecustomsreleasetimedayssum double
+,   communityminpositivecustomsreleasetimedayssum double
+,   communitymaxpositivecustomsreleasetimedayssum double
+,   communityfullcontainerdischargedatpodcontainercount bigint
+,   communityyardoutcontainercount bigint
+,   communitycontainertransittimecontainercount bigint
+,   communitypositivecontainertransittimecontainercount bigint
+,   communitynegativecontainertransittimecontainercount bigint
+,   communitycontainertransittime0lessthanorequalto5dayscontainercount bigint
+,   communitycontainertransittime5lessthanorequalto10dayscontainercount bigint
+,   communitycontainertransittime10lessthanorequalto15dayscontainercount bigint
+,   communitycontainertransittime15lessthanorequalto20dayscontainercount bigint
+,   communitycontainertransittime20lessthanorequalto25dayscontainercount bigint
+,   communitycontainertransittime25lessthanorequalto30dayscontainercount bigint
+,   communitycontainertransittime30lessthanorequalto35dayscontainercount bigint
+,   communitycontainertransittime35lessthanorequalto40dayscontainercount bigint
+,   communitycontainertransittimegreaterthan40dayscontainercount bigint
+,   communitycontainertransittimedayssum double
+,   communitypositivecontainertransittimedayssum double
+,   communitynegativecontainertransittimedayssum double
+,   communityminpositivecontainertransittimedayssum double
+,   communitymaxpositivecontainertransittimedayssum double
+,   communitydwelltimeatpodcontainercount bigint
+,   communitypositivedwelltimeatpodcontainercount bigint
+,   communitynegativedwelltimeatpodcontainercount bigint
+,   communitydwelltimeatpod0lessthanorequalto1dayscontainercount bigint
+,   communitydwelltimeatpod1lessthanorequalto2dayscontainercount bigint
+,   communitydwelltimeatpod2lessthanorequalto3dayscontainercount bigint
+,   communitydwelltimeatpod3lessthanorequalto4dayscontainercount bigint
+,   communitydwelltimeatpod4lessthanorequalto5dayscontainercount bigint
+,   communitydwelltimeatpod5lessthanorequalto6dayscontainercount bigint
+,   communitydwelltimeatpod6lessthanorequalto7dayscontainercount bigint
+,   communitydwelltimeatpod7lessthanorequalto8dayscontainercount bigint
+,   communitydwelltimeatpodgreaterthan8dayscontainercount bigint
+,   communitydwelltimeatpoddayssum double
+,   communitypositivedwelltimeatpoddayssum double
+,   communitynegativedwelltimeatpoddayssum double
+,   communityminpositivedwelltimeatpoddayssum double
+,   communitymaxpositivedwelltimeatpoddayssum double
+,   communitytotaltimeatpodcontainercount bigint
+,   communitypositivetotaltimeatpodcontainercount bigint
+,   communitynegativetotaltimeatpodcontainercount bigint
+,   communitytotaltimeatpod0lessthanorequalto1dayscontainercount bigint
+,   communitytotaltimeatpod1lessthanorequalto2dayscontainercount bigint
+,   communitytotaltimeatpod2lessthanorequalto3dayscontainercount bigint
+,   communitytotaltimeatpod3lessthanorequalto4dayscontainercount bigint
+,   communitytotaltimeatpod4lessthanorequalto5dayscontainercount bigint
+,   communitytotaltimeatpod5lessthanorequalto6dayscontainercount bigint
+,   communitytotaltimeatpod6lessthanorequalto7dayscontainercount bigint
+,   communitytotaltimeatpod7lessthanorequalto8dayscontainercount bigint
+,   communitytotaltimeatpodgreaterthan8dayscontainercount bigint
+,   communitytotaltimeatpoddayssum double
+,   communitypositivetotaltimeatpoddayssum double
+,   communitynegativetotaltimeatpoddayssum double
+,   communityminpositivetotaltimeatpoddayssum double
+,   communitymaxpositivetotaltimeatpoddayssum double
+,   communityfulloutgatefrompolcontainercount bigint
+,   communityfullcontainerdeliveryattrcontainercount bigint
+,   communitydestinationinlandtransitcontainercount bigint
+,   communitypositivedestinationinlandtransitcontainercount bigint
+,   communitynegativedestinationinlandtransitcontainercount bigint
+,   communitydestinationinlandtransit0lessthanorequalto1dayscontainercount bigint
+,   communitydestinationinlandtransit1lessthanorequalto2dayscontainercount bigint
+,   communitydestinationinlandtransit2lessthanorequalto3dayscontainercount bigint
+,   communitydestinationinlandtransit3lessthanorequalto4dayscontainercount bigint
+,   communitydestinationinlandtransit4lessthanorequalto5dayscontainercount bigint
+,   communitydestinationinlandtransitgreaterthan5dayscontainercount bigint
+,   communitydestinationinlandtransitdayssum double
+,   communitypositivedestinationinlandtransitdayssum double
+,   communitynegativedestinationinlandtransitdayssum double
+,   communityminpositivedestinationinlandtransitdayssum double
+,   communitymaxpositivedestinationinlandtransitdayssum double
+,   communityemptyreturncontainercount bigint
+,   communitydwelltimeawayfrompodcontainercount bigint
+,   communitypositivedwelltimeawayfrompodcontainercount bigint
+,   communitynegativedwelltimeawayfrompodcontainercount bigint
+,   communitydwelltimeawayfrompod0lessthanorequalto1dayscontainercount bigint
+,   communitydwelltimeawayfrompod1lessthanorequalto2dayscontainercount bigint
+,   communitydwelltimeawayfrompod2lessthanorequalto3dayscontainercount bigint
+,   communitydwelltimeawayfrompod3lessthanorequalto4dayscontainercount bigint
+,   communitydwelltimeawayfrompod4lessthanorequalto5dayscontainercount bigint
+,   communitydwelltimeawayfrompod5lessthanorequalto6dayscontainercount bigint
+,   communitydwelltimeawayfrompod6lessthanorequalto7dayscontainercount bigint
+,   communitydwelltimeawayfrompod7lessthanorequalto8dayscontainercount bigint
+,   communitydwelltimeawayfrompodgreaterthan8dayscontainercount bigint
+,   communitydwelltimeawayfrompoddayssum double
+,   communitypositivedwelltimeawayfrompoddayssum double
+,   communitynegativedwelltimeawayfrompoddayssum double
+,   communityminpositivedwelltimeawayfrompoddayssum double
+,   communitymaxpositivedwelltimeawayfrompoddayssum double
+,   communityoutforstrippingcontainercount bigint
+,   communitypositiveoutforstrippingcontainercount bigint
+,   communitynegativeoutforstrippingcontainercount bigint
+,   communityoutforstripping0lessthanorequalto1dayscontainercount bigint
+,   communityoutforstripping1lessthanorequalto2dayscontainercount bigint
+,   communityoutforstripping2lessthanorequalto3dayscontainercount bigint
+,   communityoutforstripping3lessthanorequalto4dayscontainercount bigint
+,   communityoutforstripping4lessthanorequalto5dayscontainercount bigint
+,   communityoutforstripping5lessthanorequalto6dayscontainercount bigint
+,   communityoutforstripping6lessthanorequalto7dayscontainercount bigint
+,   communityoutforstripping7lessthanorequalto8dayscontainercount bigint
+,   communityoutforstrippinggreaterthan8dayscontainercount bigint
+,   communityoutforstrippingdayssum double
+,   communitypositiveoutforstrippingdayssum double
+,   communitynegativeoutforstrippingdayssum double
+,   communityminpositiveoutforstrippingdayssum double
+,   communitymaxpositiveoutforstrippingdayssum double
+,   communitycreatedatecontainercount bigint
+,   communityfirstetdpolcompletenesscontainercount bigint
+,   communityfirstetapodcompletenesscontainercount bigint
+,   attributehashid string
+,   metrichashid string
+)
+PARTITIONED BY (yearweek int)
+STORED AS ORC TBLPROPERTIES("orc.compress" = "SNAPPY")
+;
+
+INSERT INTO TABLE hv_orc_ocm_benchmark_combined_agg_hash_temp
+PARTITION (yearweek)
+SELECT
+    `(yearweek)?+.+`
+,   MD5(CONCAT_WS('^',NVL(carrierorgid,''),NVL(ownerorgid,''),NVL(polcityid,''),NVL(podcityid,''),NVL(transshipcityid,''),NVL(containertypecluster,''),NVL(movetypecluster,''),NVL(datedimid,''))) AS attributehashid
+,   MD5(CONCAT_WS('^',NVL(owneremptyoutgatecontainercount,''),NVL(owneroutforstuffingcontainercount,''),NVL(ownerpositiveoutforstuffingcontainercount,''),NVL(ownernegativeoutforstuffingcontainercount,''),NVL(owneroutforstuffing0lessthanorequalto1dayscontainercount,''),NVL(owneroutforstuffing1lessthanorequalto2dayscontainercount,''),NVL(owneroutforstuffing2lessthanorequalto3dayscontainercount,''),NVL(owneroutforstuffing3lessthanorequalto4dayscontainercount,''),NVL(owneroutforstuffing4lessthanorequalto5dayscontainercount,''),NVL(owneroutforstuffing5lessthanorequalto6dayscontainercount,''),NVL(owneroutforstuffing6lessthanorequalto7dayscontainercount,''),NVL(owneroutforstuffing7lessthanorequalto8dayscontainercount,''),NVL(owneroutforstuffinggreaterthan8dayscontainercount,''),NVL(owneroutforstuffingdayssum,''),NVL(ownerpositiveoutforstuffingdayssum,''),NVL(ownernegativeoutforstuffingdayssum,''),NVL(ownerminpositiveoutforstuffingdays,''),NVL(ownermaxpositiveoutforstuffingdays,''),NVL(owneryardincontainercount,''),NVL(ownerdwelltimeawayfrompolcontainercount,''),NVL(ownerpositivedwelltimeawayfrompolcontainercount,''),NVL(ownernegativedwelltimeawayfrompolcontainercount,''),NVL(ownerdwelltimeawayfrompol0lessthanorequalto1dayscontainercount,''),NVL(ownerdwelltimeawayfrompol1lessthanorequalto2dayscontainercount,''),NVL(ownerdwelltimeawayfrompol2lessthanorequalto3dayscontainercount,''),NVL(ownerdwelltimeawayfrompol3lessthanorequalto4dayscontainercount,''),NVL(ownerdwelltimeawayfrompol4lessthanorequalto5dayscontainercount,''),NVL(ownerdwelltimeawayfrompol5lessthanorequalto6dayscontainercount,''),NVL(ownerdwelltimeawayfrompol6lessthanorequalto7dayscontainercount,''),NVL(ownerdwelltimeawayfrompol7lessthanorequalto8dayscontainercount,''),NVL(ownerdwelltimeawayfrompolgreaterthan8dayscontainercount,''),NVL(ownerdwelltimeawayfrompoldayssum,''),NVL(ownerpositivedwelltimeawayfrompoldayssum,''),NVL(ownernegativedwelltimeawayfrompoldayssum,''),NVL(ownerminpositivedwelltimeawayfrompoldays,''),NVL(ownermaxpositivedwelltimeawayfrompoldays,''),NVL(ownerorigininlandtransitcontainercount,''),NVL(ownerpositiveorigininlandtransitcontainercount,''),NVL(ownernegativeorigininlandtransitcontainercount,''),NVL(ownerorigininlandtransit0lessthanorequalto1dayscontainercount,''),NVL(ownerorigininlandtransit1lessthanorequalto2dayscontainercount,''),NVL(ownerorigininlandtransit2lessthanorequalto3dayscontainercount,''),NVL(ownerorigininlandtransit3lessthanorequalto4dayscontainercount,''),NVL(ownerorigininlandtransit4lessthanorequalto5dayscontainercount,''),NVL(ownerorigininlandtransitgreaterthan5dayscontainercount,''),NVL(ownerorigininlandtransitdayssum,''),NVL(ownerpositiveorigininlandtransitdayssum,''),NVL(ownernegativeorigininlandtransitdayssum,''),NVL(ownerminpositiveorigininlandtransitdays,''),NVL(ownermaxpositiveorigininlandtransitdays,''),NVL(owneronboardcontainercount,''),NVL(ownerdwelltimeatpolcontainercount,''),NVL(ownerpositivedwelltimeatpolcontainercount,''),NVL(ownernegativedwelltimeatpolcontainercount,''),NVL(ownerdwelltimeatpoldayssum,''),NVL(ownerpositivedwelltimeatpoldayssum,''),NVL(ownernegativedwelltimeatpoldayssum,''),NVL(ownerminpositivedwelltimeatpoldays,''),NVL(ownermaxpositivedwelltimeatpoldays,''),NVL(ownerbookedetdpolcontainercount,''),NVL(ownerbtdpolcontainercount,''),NVL(ownerpollatenesscontainercount,''),NVL(ownerotdperformancecontainercount,''),NVL(ownerpositivepollatenesscontainercount,''),NVL(ownernegativepollatenesscontainercount,''),NVL(ownerotdperformancegreaterthan8daysearly,''),NVL(ownerotdperformance7lessthanorequalto8daysearly,''),NVL(ownerotdperformance6lessthanorequalto7daysearly,''),NVL(ownerotdperformance5lessthanorequalto6daysearly,''),NVL(ownerotdperformance4lessthanorequalto5daysearly,''),NVL(ownerotdperformance3lessthanorequalto4daysearly,''),NVL(ownerotdperformance2lessthanorequalto3daysearly,''),NVL(ownerotdperformance1lessthanorequalto2daysearly,''),NVL(ownerotdperformance0lessthanorequalto1daysearly,''),NVL(ownerotdperformance0lessthanorequalto1dayslate,''),NVL(ownerotdperformance1lessthanorequalto2dayslate,''),NVL(ownerotdperformance2lessthanorequalto3dayslate,''),NVL(ownerotdperformance3lessthanorequalto4dayslate,''),NVL(ownerotdperformance4lessthanorequalto5dayslate,''),NVL(ownerotdperformancegreaterthan5dayslate,''),NVL(ownerotdperformance5lessthanorequalto6dayslate,''),NVL(ownerotdperformance6lessthanorequalto7dayslate,''),NVL(ownerotdperformance7lessthanorequalto8dayslate,''),NVL(ownerotdperformancegreaterthan8dayslate,''),NVL(ownerpollatenessdayssum,''),NVL(ownerpositivepollatenessdayssum,''),NVL(ownernegativepollatenessdayssum,''),NVL(ownerarrivedattransshipmentcompletenesscontainercount,''),NVL(ownerbookedetdpolcompletenesscontainercount,''),NVL(ownerdepartedfrompolcompletenesscontainercount,''),NVL(ownerdepartedfromtransshipmentcompletenesscontainercount,''),NVL(owneremptyoutgatecompletenesscontainercount,''),NVL(owneremptyoutfrominlandcompletenesscontainercount,''),NVL(owneremptyoutfromportcompletenesscontainercount,''),NVL(owneretdpolcompletenesscontainercount,''),NVL(ownerfulloutgatefrompolcompletenesscontainercount,''),NVL(owneronboardcompletenesscontainercount,''),NVL(owneryardincompletenesscontainercount,''),NVL(ownerspeedkmshr,''),NVL(ownerteusum,''),NVL(ownerteuatpolsum,''),NVL(ownercontainertransittimesum,''),NVL(ownercontainertransittimecount,''),NVL(ownervesseltransittimesum,''),NVL(ownervesseltransittimecount,''),NVL(ownerotdperformancesum,''),NVL(ownerotdperformancecount,''),NVL(ownerotaperformancesum,''),NVL(ownerotaperformancecount,''),NVL(ownerpollatenesssum,''),NVL(ownerpollatenesscount,''),NVL(ownerpodlatenesssum,''),NVL(ownerpodlatenesscount,''),NVL(ownerspeeddistancekms,''),NVL(ownerspeedtimehr,''),NVL(ownertotaltimeatpolsum,''),NVL(ownertotaltimeatpolcount,''),NVL(ownertotaltimeatpodsum,''),NVL(ownertotaltimeatpodcount,''),NVL(ownerteuranksum,''),NVL(ownerteurankcount,''),NVL(ownerteuatpolranksum,''),NVL(ownerteuatpolrankcount,''),NVL(ownerteuatpodranksum,''),NVL(ownerteuatpodrankcount,''),NVL(ownerdepartedfrompolcontainercount,''),NVL(ownertotaltimeatpolcontainercount,''),NVL(ownerpositivetotaltimeatpolcontainercount,''),NVL(ownernegativetotaltimeatpolcontainercount,''),NVL(ownertotaltimeatpol0lessthanorequalto1dayscontainercount,''),NVL(ownertotaltimeatpol1lessthanorequalto2dayscontainercount,''),NVL(ownertotaltimeatpol2lessthanorequalto3dayscontainercount,''),NVL(ownertotaltimeatpol3lessthanorequalto4dayscontainercount,''),NVL(ownertotaltimeatpol4lessthanorequalto5dayscontainercount,''),NVL(ownertotaltimeatpol5lessthanorequalto6dayscontainercount,''),NVL(ownertotaltimeatpol6lessthanorequalto7dayscontainercount,''),NVL(ownertotaltimeatpol7lessthanorequalto8dayscontainercount,''),NVL(ownertotaltimeatpolgreaterthan8dayscontainercount,''),NVL(ownertotaltimeatpoldayssum,''),NVL(ownerpositivetotaltimeatpoldayssum,''),NVL(ownernegativetotaltimeatpoldayssum,''),NVL(ownerminpositivetotaltimeatpoldayssum,''),NVL(ownermaxpositivetotaltimeatpoldayssum,''),NVL(ownerarrivedattransshipmentcontainercount,''),NVL(ownerdepartedfromtransshipmentcontainercount,''),NVL(ownerdwelltimeattransshipmentportcontainercount,''),NVL(ownerpositivedwelltimeattransshipmentportcontainercount,''),NVL(ownernegativedwelltimeattransshipmentportcontainercount,''),NVL(ownerdwelltimeattransshipmentport0lessthanorequalto1dayscontainercount,''),NVL(ownerdwelltimeattransshipmentport1lessthanorequalto2dayscontainercount,''),NVL(ownerdwelltimeattransshipmentport2lessthanorequalto3dayscontainercount,''),NVL(ownerdwelltimeattransshipmentport3lessthanorequalto4dayscontainercount,''),NVL(ownerdwelltimeattransshipmentport4lessthanorequalto5dayscontainercount,''),NVL(ownerdwelltimeattransshipmentportgreaterthan5dayscontainercount,''),NVL(ownerdwelltimeattransshipmentportdayssum,''),NVL(ownerpositivedwelltimeattransshipmentportdayssum,''),NVL(ownernegativedwelltimeattransshipmentportdayssum,''),NVL(ownerminpositivedwelltimeattransshipmentportdayssum,''),NVL(ownermaxpositivedwelltimeattransshipmentportdayssum,''),NVL(ownerbtapodcontainercount,''),NVL(ownerpodlatenesscontainercount,''),NVL(ownerotaperformancecontainercount,''),NVL(ownerpositivepodlatenesscontainercount,''),NVL(ownernegativepodlatenesscontainercount,''),NVL(ownerotaperformancegreaterthan8daysearly,''),NVL(ownerotaperformance7lessthanorequalto8daysearly,''),NVL(ownerotaperformance6lessthanorequalto7daysearly,''),NVL(ownerotaperformance5lessthanorequalto6daysearly,''),NVL(ownerotaperformance4lessthanorequalto5daysearly,''),NVL(ownerotaperformance3lessthanorequalto4daysearly,''),NVL(ownerotaperformance2lessthanorequalto3daysearly,''),NVL(ownerotaperformance1lessthanorequalto2daysearly,''),NVL(ownerotaperformance0lessthanorequalto1daysearly,''),NVL(ownerotaperformance0lessthanorequalto1dayslate,''),NVL(ownerotaperformance1lessthanorequalto2dayslate,''),NVL(ownerotaperformance2lessthanorequalto3dayslate,''),NVL(ownerotaperformance3lessthanorequalto4dayslate,''),NVL(ownerotaperformance4lessthanorequalto5dayslate,''),NVL(ownerotaperformancegreaterthan5dayslate,''),NVL(ownerotaperformance5lessthanorequalto6dayslate,''),NVL(ownerotaperformance6lessthanorequalto7dayslate,''),NVL(ownerotaperformance7lessthanorequalto8dayslate,''),NVL(ownerotaperformancegreaterthan8dayslate,''),NVL(ownerpodlatenessdayssum,''),NVL(ownerpositivepodlatenessdayssum,''),NVL(ownernegativepodlatenessdayssum,''),NVL(ownerarrivedatpodcompletenesscontainercount,''),NVL(ownerbookedetapodcompletenesscontainercount,''),NVL(ownercustomsreleasecompletenesscontainercount,''),NVL(owneremptyreturncompletenesscontainercount,''),NVL(owneretapodcompletenesscontainercount,''),NVL(ownerfullcontainerdischargedatpodcompletenesscontainercount,''),NVL(owneryardoutcompletenesscontainercount,''),NVL(ownerteuatpodsum,''),NVL(ownerbookedetapodcontainercount,''),NVL(ownerarrivedatpodcontainercount,''),NVL(ownervesseltransittimecontainercount,''),NVL(ownervesseltransittimeperformancecontainercount,''),NVL(ownerpositivevesseltransittimecontainercount,''),NVL(ownernegativevesseltransittimecontainercount,''),NVL(ownervesseltransittime0lessthanorequalto5dayscontainercount,''),NVL(ownervesseltransittime5lessthanorequalto10dayscontainercount,''),NVL(ownervesseltransittime10lessthanorequalto15dayscontainercount,''),NVL(ownervesseltransittime15lessthanorequalto20dayscontainercount,''),NVL(ownervesseltransittime20lessthanorequalto25dayscontainercount,''),NVL(ownervesseltransittime25lessthanorequalto30dayscontainercount,''),NVL(ownervesseltransittime30lessthanorequalto35dayscontainercount,''),NVL(ownervesseltransittime35lessthanorequalto40dayscontainercount,''),NVL(ownervesseltransittimegreaterthan40dayscontainercount,''),NVL(ownerpositivevesseltransittimedayssum,''),NVL(ownernegativevesseltransittimedayssum,''),NVL(ownerminpositivevesseltransittimedayssum,''),NVL(ownermaxpositivevesseltransittimedayssum,''),NVL(ownervesselperformancegreaterthan10daysearlycontainercount,''),NVL(ownervesselperformance9lessthanorequalto10daysearlycontainercount,''),NVL(ownervesselperformance8lessthanorequalto9daysearlycontainercount,''),NVL(ownervesselperformance7lessthanorequalto8daysearlycontainercount,''),NVL(ownervesselperformance6lessthanorequalto7daysearlycontainercount,''),NVL(ownervesselperformance5lessthanorequalto6daysearlycontainercount,''),NVL(ownervesselperformance4lessthanorequalto5daysearlycontainercount,''),NVL(ownervesselperformance3lessthanorequalto4daysearlycontainercount,''),NVL(ownervesselperformance2lessthanorequalto3daysearlycontainercount,''),NVL(ownervesselperformance1lessthanorequalto2daysearlycontainercount,''),NVL(ownervesselperformance0lessthanorequalto1daysearlycontainercount,''),NVL(ownervesselperformance0lessthanorequalto1dayslatecontainercount,''),NVL(ownervesselperformance1lessthanorequalto2dayslatecontainercount,''),NVL(ownervesselperformance2lessthanorequalto3dayslatecontainercount,''),NVL(ownervesselperformance3lessthanorequalto4dayslatecontainercount,''),NVL(ownervesselperformance4lessthanorequalto5dayslatecontainercount,''),NVL(ownervesselperformance5lessthanorequalto6dayslatecontainercount,''),NVL(ownervesselperformance6lessthanorequalto7dayslatecontainercount,''),NVL(ownervesselperformance7lessthanorequalto8dayslatecontainercount,''),NVL(ownervesselperformance8lessthanorequalto9dayslatecontainercount,''),NVL(ownervesselperformance9lessthanorequalto10dayslatecontainercount,''),NVL(ownervesselperformancegreaterthan10dayslatecontainercount,''),NVL(ownercustomsreleasecontainercount,''),NVL(ownercustomsreleasetimecontainercount,''),NVL(ownerpositivecustomsreleasetimecontainercount,''),NVL(ownernegativecustomsreleasetimecontainercount,''),NVL(ownercustomsreleasetime0lessthanorequalto1dayscontainercount,''),NVL(ownercustomsreleasetime1lessthanorequalto2dayscontainercount,''),NVL(ownercustomsreleasetime2lessthanorequalto3dayscontainercount,''),NVL(ownercustomsreleasetime3lessthanorequalto4dayscontainercount,''),NVL(ownercustomsreleasetime4lessthanorequalto5dayscontainercount,''),NVL(ownercustomsreleasetime5lessthanorequalto6dayscontainercount,''),NVL(ownercustomsreleasetime6lessthanorequalto7dayscontainercount,''),NVL(ownercustomsreleasetime7lessthanorequalto8dayscontainercount,''),NVL(ownercustomsreleasetimegreaterthan8dayscontainercount,''),NVL(ownercustomsreleasetimedayssum,''),NVL(ownerpositivecustomsreleasetimedayssum,''),NVL(ownernegativecustomsreleasetimedayssum,''),NVL(ownerminpositivecustomsreleasetimedayssum,''),NVL(ownermaxpositivecustomsreleasetimedayssum,''),NVL(ownerfullcontainerdischargedatpodcontainercount,''),NVL(owneryardoutcontainercount,''),NVL(ownercontainertransittimecontainercount,''),NVL(ownerpositivecontainertransittimecontainercount,''),NVL(ownernegativecontainertransittimecontainercount,''),NVL(ownercontainertransittime0lessthanorequalto5dayscontainercount,''),NVL(ownercontainertransittime5lessthanorequalto10dayscontainercount,''),NVL(ownercontainertransittime10lessthanorequalto15dayscontainercount,''),NVL(ownercontainertransittime15lessthanorequalto20dayscontainercount,''),NVL(ownercontainertransittime20lessthanorequalto25dayscontainercount,''),NVL(ownercontainertransittime25lessthanorequalto30dayscontainercount,''),NVL(ownercontainertransittime30lessthanorequalto35dayscontainercount,''),NVL(ownercontainertransittime35lessthanorequalto40dayscontainercount,''),NVL(ownercontainertransittimegreaterthan40dayscontainercount,''),NVL(ownercontainertransittimedayssum,''),NVL(ownerpositivecontainertransittimedayssum,''),NVL(ownernegativecontainertransittimedayssum,''),NVL(ownerminpositivecontainertransittimedayssum,''),NVL(ownermaxpositivecontainertransittimedayssum,''),NVL(ownerdwelltimeatpodcontainercount,''),NVL(ownerpositivedwelltimeatpodcontainercount,''),NVL(ownernegativedwelltimeatpodcontainercount,''),NVL(ownerdwelltimeatpod0lessthanorequalto1dayscontainercount,''),NVL(ownerdwelltimeatpod1lessthanorequalto2dayscontainercount,''),NVL(ownerdwelltimeatpod2lessthanorequalto3dayscontainercount,''),NVL(ownerdwelltimeatpod3lessthanorequalto4dayscontainercount,''),NVL(ownerdwelltimeatpod4lessthanorequalto5dayscontainercount,''),NVL(ownerdwelltimeatpod5lessthanorequalto6dayscontainercount,''),NVL(ownerdwelltimeatpod6lessthanorequalto7dayscontainercount,''),NVL(ownerdwelltimeatpod7lessthanorequalto8dayscontainercount,''),NVL(ownerdwelltimeatpodgreaterthan8dayscontainercount,''),NVL(ownerdwelltimeatpoddayssum,''),NVL(ownerpositivedwelltimeatpoddayssum,''),NVL(ownernegativedwelltimeatpoddayssum,''),NVL(ownerminpositivedwelltimeatpoddayssum,''),NVL(ownermaxpositivedwelltimeatpoddayssum,''),NVL(ownertotaltimeatpodcontainercount,''),NVL(ownerpositivetotaltimeatpodcontainercount,''),NVL(ownernegativetotaltimeatpodcontainercount,''),NVL(ownertotaltimeatpod0lessthanorequalto1dayscontainercount,''),NVL(ownertotaltimeatpod1lessthanorequalto2dayscontainercount,''),NVL(ownertotaltimeatpod2lessthanorequalto3dayscontainercount,''),NVL(ownertotaltimeatpod3lessthanorequalto4dayscontainercount,''),NVL(ownertotaltimeatpod4lessthanorequalto5dayscontainercount,''),NVL(ownertotaltimeatpod5lessthanorequalto6dayscontainercount,''),NVL(ownertotaltimeatpod6lessthanorequalto7dayscontainercount,''),NVL(ownertotaltimeatpod7lessthanorequalto8dayscontainercount,''),NVL(ownertotaltimeatpodgreaterthan8dayscontainercount,''),NVL(ownertotaltimeatpoddayssum,''),NVL(ownerpositivetotaltimeatpoddayssum,''),NVL(ownernegativetotaltimeatpoddayssum,''),NVL(ownerminpositivetotaltimeatpoddayssum,''),NVL(ownermaxpositivetotaltimeatpoddayssum,''),NVL(ownerfulloutgatefrompolcontainercount,''),NVL(ownerfullcontainerdeliveryattrcontainercount,''),NVL(ownerdestinationinlandtransitcontainercount,''),NVL(ownerpositivedestinationinlandtransitcontainercount,''),NVL(ownernegativedestinationinlandtransitcontainercount,''),NVL(ownerdestinationinlandtransit0lessthanorequalto1dayscontainercount,''),NVL(ownerdestinationinlandtransit1lessthanorequalto2dayscontainercount,''),NVL(ownerdestinationinlandtransit2lessthanorequalto3dayscontainercount,''),NVL(ownerdestinationinlandtransit3lessthanorequalto4dayscontainercount,''),NVL(ownerdestinationinlandtransit4lessthanorequalto5dayscontainercount,''),NVL(ownerdestinationinlandtransitgreaterthan5dayscontainercount,''),NVL(ownerdestinationinlandtransitdayssum,''),NVL(ownerpositivedestinationinlandtransitdayssum,''),NVL(ownernegativedestinationinlandtransitdayssum,''),NVL(ownerminpositivedestinationinlandtransitdayssum,''),NVL(ownermaxpositivedestinationinlandtransitdayssum,''),NVL(owneremptyreturncontainercount,''),NVL(ownerdwelltimeawayfrompodcontainercount,''),NVL(ownerpositivedwelltimeawayfrompodcontainercount,''),NVL(ownernegativedwelltimeawayfrompodcontainercount,''),NVL(ownerdwelltimeawayfrompod0lessthanorequalto1dayscontainercount,''),NVL(ownerdwelltimeawayfrompod1lessthanorequalto2dayscontainercount,''),NVL(ownerdwelltimeawayfrompod2lessthanorequalto3dayscontainercount,''),NVL(ownerdwelltimeawayfrompod3lessthanorequalto4dayscontainercount,''),NVL(ownerdwelltimeawayfrompod4lessthanorequalto5dayscontainercount,''),NVL(ownerdwelltimeawayfrompod5lessthanorequalto6dayscontainercount,''),NVL(ownerdwelltimeawayfrompod6lessthanorequalto7dayscontainercount,''),NVL(ownerdwelltimeawayfrompod7lessthanorequalto8dayscontainercount,''),NVL(ownerdwelltimeawayfrompodgreaterthan8dayscontainercount,''),NVL(ownerdwelltimeawayfrompoddayssum,''),NVL(ownerpositivedwelltimeawayfrompoddayssum,''),NVL(ownernegativedwelltimeawayfrompoddayssum,''),NVL(ownerminpositivedwelltimeawayfrompoddayssum,''),NVL(ownermaxpositivedwelltimeawayfrompoddayssum,''),NVL(owneroutforstrippingcontainercount,''),NVL(ownerpositiveoutforstrippingcontainercount,''),NVL(ownernegativeoutforstrippingcontainercount,''),NVL(owneroutforstripping0lessthanorequalto1dayscontainercount,''),NVL(owneroutforstripping1lessthanorequalto2dayscontainercount,''),NVL(owneroutforstripping2lessthanorequalto3dayscontainercount,''),NVL(owneroutforstripping3lessthanorequalto4dayscontainercount,''),NVL(owneroutforstripping4lessthanorequalto5dayscontainercount,''),NVL(owneroutforstripping5lessthanorequalto6dayscontainercount,''),NVL(owneroutforstripping6lessthanorequalto7dayscontainercount,''),NVL(owneroutforstripping7lessthanorequalto8dayscontainercount,''),NVL(owneroutforstrippinggreaterthan8dayscontainercount,''),NVL(owneroutforstrippingdayssum,''),NVL(ownerpositiveoutforstrippingdayssum,''),NVL(ownernegativeoutforstrippingdayssum,''),NVL(ownerminpositiveoutforstrippingdayssum,''),NVL(ownermaxpositiveoutforstrippingdayssum,''),NVL(ownercreatedatecontainercount,''),NVL(ownerfirstetdpolcompletenesscontainercount,''),NVL(ownerfirstetapodcompletenesscontainercount,''),NVL(communityemptyoutgatecontainercount,''),NVL(communityoutforstuffingcontainercount,''),NVL(communitypositiveoutforstuffingcontainercount,''),NVL(communitynegativeoutforstuffingcontainercount,''),NVL(communityoutforstuffing0lessthanorequalto1dayscontainercount,''),NVL(communityoutforstuffing1lessthanorequalto2dayscontainercount,''),NVL(communityoutforstuffing2lessthanorequalto3dayscontainercount,''),NVL(communityoutforstuffing3lessthanorequalto4dayscontainercount,''),NVL(communityoutforstuffing4lessthanorequalto5dayscontainercount,''),NVL(communityoutforstuffing5lessthanorequalto6dayscontainercount,''),NVL(communityoutforstuffing6lessthanorequalto7dayscontainercount,''),NVL(communityoutforstuffing7lessthanorequalto8dayscontainercount,''),NVL(communityoutforstuffinggreaterthan8dayscontainercount,''),NVL(communityoutforstuffingdayssum,''),NVL(communitypositiveoutforstuffingdayssum,''),NVL(communitynegativeoutforstuffingdayssum,''),NVL(communityminpositiveoutforstuffingdays,''),NVL(communitymaxpositiveoutforstuffingdays,''),NVL(communityyardincontainercount,''),NVL(communitydwelltimeawayfrompolcontainercount,''),NVL(communitypositivedwelltimeawayfrompolcontainercount,''),NVL(communitynegativedwelltimeawayfrompolcontainercount,''),NVL(communitydwelltimeawayfrompol0lessthanorequalto1dayscontainercount,''),NVL(communitydwelltimeawayfrompol1lessthanorequalto2dayscontainercount,''),NVL(communitydwelltimeawayfrompol2lessthanorequalto3dayscontainercount,''),NVL(communitydwelltimeawayfrompol3lessthanorequalto4dayscontainercount,''),NVL(communitydwelltimeawayfrompol4lessthanorequalto5dayscontainercount,''),NVL(communitydwelltimeawayfrompol5lessthanorequalto6dayscontainercount,''),NVL(communitydwelltimeawayfrompol6lessthanorequalto7dayscontainercount,''),NVL(communitydwelltimeawayfrompol7lessthanorequalto8dayscontainercount,''),NVL(communitydwelltimeawayfrompolgreaterthan8dayscontainercount,''),NVL(communitydwelltimeawayfrompoldayssum,''),NVL(communitypositivedwelltimeawayfrompoldayssum,''),NVL(communitynegativedwelltimeawayfrompoldayssum,''),NVL(communityminpositivedwelltimeawayfrompoldays,''),NVL(communitymaxpositivedwelltimeawayfrompoldays,''),NVL(communityorigininlandtransitcontainercount,''),NVL(communitypositiveorigininlandtransitcontainercount,''),NVL(communitynegativeorigininlandtransitcontainercount,''),NVL(communityorigininlandtransit0lessthanorequalto1dayscontainercount,''),NVL(communityorigininlandtransit1lessthanorequalto2dayscontainercount,''),NVL(communityorigininlandtransit2lessthanorequalto3dayscontainercount,''),NVL(communityorigininlandtransit3lessthanorequalto4dayscontainercount,''),NVL(communityorigininlandtransit4lessthanorequalto5dayscontainercount,''),NVL(communityorigininlandtransitgreaterthan5dayscontainercount,''),NVL(communityorigininlandtransitdayssum,''),NVL(communitypositiveorigininlandtransitdayssum,''),NVL(communitynegativeorigininlandtransitdayssum,''),NVL(communityminpositiveorigininlandtransitdays,''),NVL(communitymaxpositiveorigininlandtransitdays,''),NVL(communityonboardcontainercount,''),NVL(communitydwelltimeatpolcontainercount,''),NVL(communitypositivedwelltimeatpolcontainercount,''),NVL(communitynegativedwelltimeatpolcontainercount,''),NVL(communitydwelltimeatpoldayssum,''),NVL(communitypositivedwelltimeatpoldayssum,''),NVL(communitynegativedwelltimeatpoldayssum,''),NVL(communityminpositivedwelltimeatpoldays,''),NVL(communitymaxpositivedwelltimeatpoldays,''),NVL(communitybookedetdpolcontainercount,''),NVL(communitybtdpolcontainercount,''),NVL(communitypollatenesscontainercount,''),NVL(communityotdperformancecontainercount,''),NVL(communitypositivepollatenesscontainercount,''),NVL(communitynegativepollatenesscontainercount,''),NVL(communityotdperformancegreaterthan8daysearly,''),NVL(communityotdperformance7lessthanorequalto8daysearly,''),NVL(communityotdperformance6lessthanorequalto7daysearly,''),NVL(communityotdperformance5lessthanorequalto6daysearly,''),NVL(communityotdperformance4lessthanorequalto5daysearly,''),NVL(communityotdperformance3lessthanorequalto4daysearly,''),NVL(communityotdperformance2lessthanorequalto3daysearly,''),NVL(communityotdperformance1lessthanorequalto2daysearly,''),NVL(communityotdperformance0lessthanorequalto1daysearly,''),NVL(communityotdperformance0lessthanorequalto1dayslate,''),NVL(communityotdperformance1lessthanorequalto2dayslate,''),NVL(communityotdperformance2lessthanorequalto3dayslate,''),NVL(communityotdperformance3lessthanorequalto4dayslate,''),NVL(communityotdperformance4lessthanorequalto5dayslate,''),NVL(communityotdperformancegreaterthan5dayslate,''),NVL(communityotdperformance5lessthanorequalto6dayslate,''),NVL(communityotdperformance6lessthanorequalto7dayslate,''),NVL(communityotdperformance7lessthanorequalto8dayslate,''),NVL(communityotdperformancegreaterthan8dayslate,''),NVL(communitypollatenessdayssum,''),NVL(communitypositivepollatenessdayssum,''),NVL(communitynegativepollatenessdayssum,''),NVL(communityarrivedattransshipmentcompletenesscontainercount,''),NVL(communitybookedetdpolcompletenesscontainercount,''),NVL(communitydepartedfrompolcompletenesscontainercount,''),NVL(communitydepartedfromtransshipmentcompletenesscontainercount,''),NVL(communityemptyoutgatecompletenesscontainercount,''),NVL(communityemptyoutfrominlandcompletenesscontainercount,''),NVL(communityemptyoutfromportcompletenesscontainercount,''),NVL(communityetdpolcompletenesscontainercount,''),NVL(communityfulloutgatefrompolcompletenesscontainercount,''),NVL(communityonboardcompletenesscontainercount,''),NVL(communityyardincompletenesscontainercount,''),NVL(communityspeedkmshr,''),NVL(communityteusum,''),NVL(communityteuatpolsum,''),NVL(communitycontainertransittimesum,''),NVL(communitycontainertransittimecount,''),NVL(communityvesseltransittimesum,''),NVL(communityvesseltransittimecount,''),NVL(communityotdperformancesum,''),NVL(communityotdperformancecount,''),NVL(communityotaperformancesum,''),NVL(communityotaperformancecount,''),NVL(communitypollatenesssum,''),NVL(communitypollatenesscount,''),NVL(communitypodlatenesssum,''),NVL(communitypodlatenesscount,''),NVL(communityspeeddistancekms,''),NVL(communityspeedtimehr,''),NVL(communitytotaltimeatpolsum,''),NVL(communitytotaltimeatpolcount,''),NVL(communitytotaltimeatpodsum,''),NVL(communitytotaltimeatpodcount,''),NVL(communityteuranksum,''),NVL(communityteurankcount,''),NVL(communityteuatpolranksum,''),NVL(communityteuatpolrankcount,''),NVL(communityteuatpodranksum,''),NVL(communityteuatpodrankcount,''),NVL(communitydepartedfrompolcontainercount,''),NVL(communitytotaltimeatpolcontainercount,''),NVL(communitypositivetotaltimeatpolcontainercount,''),NVL(communitynegativetotaltimeatpolcontainercount,''),NVL(communitytotaltimeatpol0lessthanorequalto1dayscontainercount,''),NVL(communitytotaltimeatpol1lessthanorequalto2dayscontainercount,''),NVL(communitytotaltimeatpol2lessthanorequalto3dayscontainercount,''),NVL(communitytotaltimeatpol3lessthanorequalto4dayscontainercount,''),NVL(communitytotaltimeatpol4lessthanorequalto5dayscontainercount,''),NVL(communitytotaltimeatpol5lessthanorequalto6dayscontainercount,''),NVL(communitytotaltimeatpol6lessthanorequalto7dayscontainercount,''),NVL(communitytotaltimeatpol7lessthanorequalto8dayscontainercount,''),NVL(communitytotaltimeatpolgreaterthan8dayscontainercount,''),NVL(communitytotaltimeatpoldayssum,''),NVL(communitypositivetotaltimeatpoldayssum,''),NVL(communitynegativetotaltimeatpoldayssum,''),NVL(communityminpositivetotaltimeatpoldayssum,''),NVL(communitymaxpositivetotaltimeatpoldayssum,''),NVL(communityarrivedattransshipmentcontainercount,''),NVL(communitydepartedfromtransshipmentcontainercount,''),NVL(communitydwelltimeattransshipmentportcontainercount,''),NVL(communitypositivedwelltimeattransshipmentportcontainercount,''),NVL(communitynegativedwelltimeattransshipmentportcontainercount,''),NVL(communitydwelltimeattransshipmentport0lessthanorequalto1dayscontainercount,''),NVL(communitydwelltimeattransshipmentport1lessthanorequalto2dayscontainercount,''),NVL(communitydwelltimeattransshipmentport2lessthanorequalto3dayscontainercount,''),NVL(communitydwelltimeattransshipmentport3lessthanorequalto4dayscontainercount,''),NVL(communitydwelltimeattransshipmentport4lessthanorequalto5dayscontainercount,''),NVL(communitydwelltimeattransshipmentportgreaterthan5dayscontainercount,''),NVL(communitydwelltimeattransshipmentportdayssum,''),NVL(communitypositivedwelltimeattransshipmentportdayssum,''),NVL(communitynegativedwelltimeattransshipmentportdayssum,''),NVL(communityminpositivedwelltimeattransshipmentportdayssum,''),NVL(communitymaxpositivedwelltimeattransshipmentportdayssum,''),NVL(communitybtapodcontainercount,''),NVL(communitypodlatenesscontainercount,''),NVL(communityotaperformancecontainercount,''),NVL(communitypositivepodlatenesscontainercount,''),NVL(communitynegativepodlatenesscontainercount,''),NVL(communityotaperformancegreaterthan8daysearly,''),NVL(communityotaperformance7lessthanorequalto8daysearly,''),NVL(communityotaperformance6lessthanorequalto7daysearly,''),NVL(communityotaperformance5lessthanorequalto6daysearly,''),NVL(communityotaperformance4lessthanorequalto5daysearly,''),NVL(communityotaperformance3lessthanorequalto4daysearly,''),NVL(communityotaperformance2lessthanorequalto3daysearly,''),NVL(communityotaperformance1lessthanorequalto2daysearly,''),NVL(communityotaperformance0lessthanorequalto1daysearly,''),NVL(communityotaperformance0lessthanorequalto1dayslate,''),NVL(communityotaperformance1lessthanorequalto2dayslate,''),NVL(communityotaperformance2lessthanorequalto3dayslate,''),NVL(communityotaperformance3lessthanorequalto4dayslate,''),NVL(communityotaperformance4lessthanorequalto5dayslate,''),NVL(communityotaperformancegreaterthan5dayslate,''),NVL(communityotaperformance5lessthanorequalto6dayslate,''),NVL(communityotaperformance6lessthanorequalto7dayslate,''),NVL(communityotaperformance7lessthanorequalto8dayslate,''),NVL(communityotaperformancegreaterthan8dayslate,''),NVL(communitypodlatenessdayssum,''),NVL(communitypositivepodlatenessdayssum,''),NVL(communitynegativepodlatenessdayssum,''),NVL(communityarrivedatpodcompletenesscontainercount,''),NVL(communitybookedetapodcompletenesscontainercount,''),NVL(communitycustomsreleasecompletenesscontainercount,''),NVL(communityemptyreturncompletenesscontainercount,''),NVL(communityetapodcompletenesscontainercount,''),NVL(communityfullcontainerdischargedatpodcompletenesscontainercount,''),NVL(communityyardoutcompletenesscontainercount,''),NVL(communityteuatpodsum,''),NVL(communitybookedetapodcontainercount,''),NVL(communityarrivedatpodcontainercount,''),NVL(communityvesseltransittimecontainercount,''),NVL(communityvesseltransittimeperformancecontainercount,''),NVL(communitypositivevesseltransittimecontainercount,''),NVL(communitynegativevesseltransittimecontainercount,''),NVL(communityvesseltransittime0lessthanorequalto5dayscontainercount,''),NVL(communityvesseltransittime5lessthanorequalto10dayscontainercount,''),NVL(communityvesseltransittime10lessthanorequalto15dayscontainercount,''),NVL(communityvesseltransittime15lessthanorequalto20dayscontainercount,''),NVL(communityvesseltransittime20lessthanorequalto25dayscontainercount,''),NVL(communityvesseltransittime25lessthanorequalto30dayscontainercount,''),NVL(communityvesseltransittime30lessthanorequalto35dayscontainercount,''),NVL(communityvesseltransittime35lessthanorequalto40dayscontainercount,''),NVL(communityvesseltransittimegreaterthan40dayscontainercount,''),NVL(communitypositivevesseltransittimedayssum,''),NVL(communitynegativevesseltransittimedayssum,''),NVL(communityminpositivevesseltransittimedayssum,''),NVL(communitymaxpositivevesseltransittimedayssum,''),NVL(communityvesselperformancegreaterthan10daysearlycontainercount,''),NVL(communityvesselperformance9lessthanorequalto10daysearlycontainercount,''),NVL(communityvesselperformance8lessthanorequalto9daysearlycontainercount,''),NVL(communityvesselperformance7lessthanorequalto8daysearlycontainercount,''),NVL(communityvesselperformance6lessthanorequalto7daysearlycontainercount,''),NVL(communityvesselperformance5lessthanorequalto6daysearlycontainercount,''),NVL(communityvesselperformance4lessthanorequalto5daysearlycontainercount,''),NVL(communityvesselperformance3lessthanorequalto4daysearlycontainercount,''),NVL(communityvesselperformance2lessthanorequalto3daysearlycontainercount,''),NVL(communityvesselperformance1lessthanorequalto2daysearlycontainercount,''),NVL(communityvesselperformance0lessthanorequalto1daysearlycontainercount,''),NVL(communityvesselperformance0lessthanorequalto1dayslatecontainercount,''),NVL(communityvesselperformance1lessthanorequalto2dayslatecontainercount,''),NVL(communityvesselperformance2lessthanorequalto3dayslatecontainercount,''),NVL(communityvesselperformance3lessthanorequalto4dayslatecontainercount,''),NVL(communityvesselperformance4lessthanorequalto5dayslatecontainercount,''),NVL(communityvesselperformance5lessthanorequalto6dayslatecontainercount,''),NVL(communityvesselperformance6lessthanorequalto7dayslatecontainercount,''),NVL(communityvesselperformance7lessthanorequalto8dayslatecontainercount,''),NVL(communityvesselperformance8lessthanorequalto9dayslatecontainercount,''),NVL(communityvesselperformance9lessthanorequalto10dayslatecontainercount,''),NVL(communityvesselperformancegreaterthan10dayslatecontainercount,''),NVL(communitycustomsreleasecontainercount,''),NVL(communitycustomsreleasetimecontainercount,''),NVL(communitypositivecustomsreleasetimecontainercount,''),NVL(communitynegativecustomsreleasetimecontainercount,''),NVL(communitycustomsreleasetime0lessthanorequalto1dayscontainercount,''),NVL(communitycustomsreleasetime1lessthanorequalto2dayscontainercount,''),NVL(communitycustomsreleasetime2lessthanorequalto3dayscontainercount,''),NVL(communitycustomsreleasetime3lessthanorequalto4dayscontainercount,''),NVL(communitycustomsreleasetime4lessthanorequalto5dayscontainercount,''),NVL(communitycustomsreleasetime5lessthanorequalto6dayscontainercount,''),NVL(communitycustomsreleasetime6lessthanorequalto7dayscontainercount,''),NVL(communitycustomsreleasetime7lessthanorequalto8dayscontainercount,''),NVL(communitycustomsreleasetimegreaterthan8dayscontainercount,''),NVL(communitycustomsreleasetimedayssum,''),NVL(communitypositivecustomsreleasetimedayssum,''),NVL(communitynegativecustomsreleasetimedayssum,''),NVL(communityminpositivecustomsreleasetimedayssum,''),NVL(communitymaxpositivecustomsreleasetimedayssum,''),NVL(communityfullcontainerdischargedatpodcontainercount,''),NVL(communityyardoutcontainercount,''),NVL(communitycontainertransittimecontainercount,''),NVL(communitypositivecontainertransittimecontainercount,''),NVL(communitynegativecontainertransittimecontainercount,''),NVL(communitycontainertransittime0lessthanorequalto5dayscontainercount,''),NVL(communitycontainertransittime5lessthanorequalto10dayscontainercount,''),NVL(communitycontainertransittime10lessthanorequalto15dayscontainercount,''),NVL(communitycontainertransittime15lessthanorequalto20dayscontainercount,''),NVL(communitycontainertransittime20lessthanorequalto25dayscontainercount,''),NVL(communitycontainertransittime25lessthanorequalto30dayscontainercount,''),NVL(communitycontainertransittime30lessthanorequalto35dayscontainercount,''),NVL(communitycontainertransittime35lessthanorequalto40dayscontainercount,''),NVL(communitycontainertransittimegreaterthan40dayscontainercount,''),NVL(communitycontainertransittimedayssum,''),NVL(communitypositivecontainertransittimedayssum,''),NVL(communitynegativecontainertransittimedayssum,''),NVL(communityminpositivecontainertransittimedayssum,''),NVL(communitymaxpositivecontainertransittimedayssum,''),NVL(communitydwelltimeatpodcontainercount,''),NVL(communitypositivedwelltimeatpodcontainercount,''),NVL(communitynegativedwelltimeatpodcontainercount,''),NVL(communitydwelltimeatpod0lessthanorequalto1dayscontainercount,''),NVL(communitydwelltimeatpod1lessthanorequalto2dayscontainercount,''),NVL(communitydwelltimeatpod2lessthanorequalto3dayscontainercount,''),NVL(communitydwelltimeatpod3lessthanorequalto4dayscontainercount,''),NVL(communitydwelltimeatpod4lessthanorequalto5dayscontainercount,''),NVL(communitydwelltimeatpod5lessthanorequalto6dayscontainercount,''),NVL(communitydwelltimeatpod6lessthanorequalto7dayscontainercount,''),NVL(communitydwelltimeatpod7lessthanorequalto8dayscontainercount,''),NVL(communitydwelltimeatpodgreaterthan8dayscontainercount,''),NVL(communitydwelltimeatpoddayssum,''),NVL(communitypositivedwelltimeatpoddayssum,''),NVL(communitynegativedwelltimeatpoddayssum,''),NVL(communityminpositivedwelltimeatpoddayssum,''),NVL(communitymaxpositivedwelltimeatpoddayssum,''),NVL(communitytotaltimeatpodcontainercount,''),NVL(communitypositivetotaltimeatpodcontainercount,''),NVL(communitynegativetotaltimeatpodcontainercount,''),NVL(communitytotaltimeatpod0lessthanorequalto1dayscontainercount,''),NVL(communitytotaltimeatpod1lessthanorequalto2dayscontainercount,''),NVL(communitytotaltimeatpod2lessthanorequalto3dayscontainercount,''),NVL(communitytotaltimeatpod3lessthanorequalto4dayscontainercount,''),NVL(communitytotaltimeatpod4lessthanorequalto5dayscontainercount,''),NVL(communitytotaltimeatpod5lessthanorequalto6dayscontainercount,''),NVL(communitytotaltimeatpod6lessthanorequalto7dayscontainercount,''),NVL(communitytotaltimeatpod7lessthanorequalto8dayscontainercount,''),NVL(communitytotaltimeatpodgreaterthan8dayscontainercount,''),NVL(communitytotaltimeatpoddayssum,''),NVL(communitypositivetotaltimeatpoddayssum,''),NVL(communitynegativetotaltimeatpoddayssum,''),NVL(communityminpositivetotaltimeatpoddayssum,''),NVL(communitymaxpositivetotaltimeatpoddayssum,''),NVL(communityfulloutgatefrompolcontainercount,''),NVL(communityfullcontainerdeliveryattrcontainercount,''),NVL(communitydestinationinlandtransitcontainercount,''),NVL(communitypositivedestinationinlandtransitcontainercount,''),NVL(communitynegativedestinationinlandtransitcontainercount,''),NVL(communitydestinationinlandtransit0lessthanorequalto1dayscontainercount,''),NVL(communitydestinationinlandtransit1lessthanorequalto2dayscontainercount,''),NVL(communitydestinationinlandtransit2lessthanorequalto3dayscontainercount,''),NVL(communitydestinationinlandtransit3lessthanorequalto4dayscontainercount,''),NVL(communitydestinationinlandtransit4lessthanorequalto5dayscontainercount,''),NVL(communitydestinationinlandtransitgreaterthan5dayscontainercount,''),NVL(communitydestinationinlandtransitdayssum,''),NVL(communitypositivedestinationinlandtransitdayssum,''),NVL(communitynegativedestinationinlandtransitdayssum,''),NVL(communityminpositivedestinationinlandtransitdayssum,''),NVL(communitymaxpositivedestinationinlandtransitdayssum,''),NVL(communityemptyreturncontainercount,''),NVL(communitydwelltimeawayfrompodcontainercount,''),NVL(communitypositivedwelltimeawayfrompodcontainercount,''),NVL(communitynegativedwelltimeawayfrompodcontainercount,''),NVL(communitydwelltimeawayfrompod0lessthanorequalto1dayscontainercount,''),NVL(communitydwelltimeawayfrompod1lessthanorequalto2dayscontainercount,''),NVL(communitydwelltimeawayfrompod2lessthanorequalto3dayscontainercount,''),NVL(communitydwelltimeawayfrompod3lessthanorequalto4dayscontainercount,''),NVL(communitydwelltimeawayfrompod4lessthanorequalto5dayscontainercount,''),NVL(communitydwelltimeawayfrompod5lessthanorequalto6dayscontainercount,''),NVL(communitydwelltimeawayfrompod6lessthanorequalto7dayscontainercount,''),NVL(communitydwelltimeawayfrompod7lessthanorequalto8dayscontainercount,''),NVL(communitydwelltimeawayfrompodgreaterthan8dayscontainercount,''),NVL(communitydwelltimeawayfrompoddayssum,''),NVL(communitypositivedwelltimeawayfrompoddayssum,''),NVL(communitynegativedwelltimeawayfrompoddayssum,''),NVL(communityminpositivedwelltimeawayfrompoddayssum,''),NVL(communitymaxpositivedwelltimeawayfrompoddayssum,''),NVL(communityoutforstrippingcontainercount,''),NVL(communitypositiveoutforstrippingcontainercount,''),NVL(communitynegativeoutforstrippingcontainercount,''),NVL(communityoutforstripping0lessthanorequalto1dayscontainercount,''),NVL(communityoutforstripping1lessthanorequalto2dayscontainercount,''),NVL(communityoutforstripping2lessthanorequalto3dayscontainercount,''),NVL(communityoutforstripping3lessthanorequalto4dayscontainercount,''),NVL(communityoutforstripping4lessthanorequalto5dayscontainercount,''),NVL(communityoutforstripping5lessthanorequalto6dayscontainercount,''),NVL(communityoutforstripping6lessthanorequalto7dayscontainercount,''),NVL(communityoutforstripping7lessthanorequalto8dayscontainercount,''),NVL(communityoutforstrippinggreaterthan8dayscontainercount,''),NVL(communityoutforstrippingdayssum,''),NVL(communitypositiveoutforstrippingdayssum,''),NVL(communitynegativeoutforstrippingdayssum,''),NVL(communityminpositiveoutforstrippingdayssum,''),NVL(communitymaxpositiveoutforstrippingdayssum,''),NVL(communitycreatedatecontainercount,''),NVL(communityfirstetdpolcompletenesscontainercount,''),NVL(communityfirstetapodcompletenesscontainercount,''))) AS metrichashid
+,   yearweek
+FROM hv_orc_ocm_benchmark_combined_agg_temp
+WHERE weekenddate >= date_sub(date_sub(current_date, cast(date_format(current_date, 'u') as int)), 110*7)
+AND weekenddate <= date_sub(current_date, cast(date_format(current_date, 'u') as int))
+DISTRIBUTE BY yearweek
+SORT BY yearweek
+;
+
+DROP TABLE IF EXISTS hv_orc_ocm_benchmark_combined_agg;
+
+ALTER TABLE hv_orc_ocm_benchmark_combined_agg_hash_temp RENAME TO hv_orc_ocm_benchmark_combined_agg;
+
+DROP TABLE IF EXISTS hv_orc_ocm_benchmark_combined_agg_temp;
+DROP TABLE IF EXISTS hv_orc_ocm_benchmark_combined_agg_hash_temp;
